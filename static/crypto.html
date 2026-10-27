@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timestral Crypto Workbench — Segnali Buy/Sell Live & Backtest IS/OOS</title>
+  <style>
+    :root {
+      --bg-base: #0b0d10;
+      --bg-surface: #12151a;
+      --bg-elevated: #171b22;
+      --bg-subtle: #1e242d;
+      --border-default: #252c37;
+      --border-strong: #364050;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #8ca0b5;
+      --accent-mistral: #ff5a1f;
+      --accent-mistral-soft: rgba(255, 90, 31, 0.14);
+      --truth-emerald: #10b981;
+      --truth-emerald-soft: rgba(16, 185, 129, 0.14);
+      --alert-crimson: #f43f5e;
+      --alert-crimson-soft: rgba(244, 63, 94, 0.14);
+      --warn-amber: #f59e0b;
+      --baseline-cyan: #38bdf8;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabular {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    header.topbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-default);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-mistral);
+      color: #0b0d10;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 14px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-sm);
+    }
+
+    .brand-title h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .badge-btc {
+      border-color: rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.14);
+      color: #f59e0b;
+    }
+
+    .badge-eth {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-nav-back {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.75rem;
+      font-size: 12px;
+      text-decoration: none;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn-nav-back:hover {
+      background: var(--bg-subtle);
+      border-color: var(--accent-mistral);
+    }
+
+    main.workspace {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 3rem;
+      flex: 1;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-default);
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25rem;
+    }
+
+    .section-head p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      max-width: 82ch;
+    }
+
+    /* Live Signal Banner */
+    .live-signal-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .signal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 800;
+      padding: 0.45rem 1rem;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.04em;
+    }
+
+    .workbench-grid {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .workbench-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .control-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    select, input[type="number"], input[type="text"] {
+      width: 100%;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.65rem;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      transition: border-color 0.15s, outline 0.15s;
+    }
+
+    select:focus-visible, input[type="number"]:focus-visible, input[type="text"]:focus-visible, input[type="range"]:focus-visible, button:focus-visible, a:focus-visible {
+      outline: 2px solid var(--accent-mistral);
+      outline-offset: 2px;
+      border-color: var(--accent-mistral);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-mistral);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent-mistral);
+      color: #0b0d10;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 1rem;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+    }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.9rem;
+    }
+
+    .kpi-card.highlight-profit {
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .kpi-card.highlight-loss {
+      border-color: rgba(244, 63, 94, 0.45);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Sample Comparison Table (IS vs OOS) */
+    .sample-cmp-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table.data-table th, table.data-table td {
+      padding: 0.5rem 0.65rem;
+      border-bottom: 1px solid var(--border-default);
+      text-align: left;
+    }
+
+    table.data-table th {
+      color: var(--text-secondary);
+      font-weight: 600;
+      background: var(--bg-elevated);
+    }
+
+    /* SVG Chart Stage */
+    .chart-stage {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 3px;
+      display: inline-block;
+      border-radius: 1px;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 340px;
+      display: block;
+      overflow: visible;
+    }
+
+    .chart-readout {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-default);
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      min-height: 34px;
+      align-items: center;
+    }
+
+    .trade-marker-buy {
+      color: #10b981;
+      font-weight: 700;
+    }
+
+    .trade-marker-sell {
+      color: #f43f5e;
+      font-weight: 700;
+    }
+
+    #toastContainer {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast-msg {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 1rem;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+      pointer-events: auto;
+    }
+
+    .toast-error {
+      border-color: rgba(244, 63, 94, 0.6);
+      background: rgba(244, 63, 94, 0.15);
+      color: #fca5a5;
+    }
+
+    .toast-success {
+      border-color: rgba(16, 185, 129, 0.6);
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+    }
+
+    .btn-preset {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.65rem;
+      min-height: 30px;
+      min-width: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-preset:hover {
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      border-color: var(--accent-mistral);
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .guide-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+    }
+
+    .guide-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .guide-card p, .guide-card ul {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .guide-card ul {
+      margin-left: 1.1rem;
+      margin-top: 0.3rem;
+    }
+
+    .guide-card li {
+      margin-bottom: 0.25rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="toastContainer" aria-live="assertive"></div>
+
+  <header class="topbar">
+    <div class="brand-group">
+      <div class="brand-mark" aria-hidden="true">&#8383;</div>
+      <div class="brand-title">
+        <h1>
+          TIMESTRAL CRYPTO WORKBENCH
+          <span class="badge badge-btc">BTC/USDT</span>
+          <span class="badge badge-eth">ETH/USDT</span>
+          <span class="badge badge-mistral">21 QUANTILE SIGNALS</span>
+        </h1>
+        <p>Segnali Buy/Sell in Tempo Reale & Backtesting con Campioni In-Sample e Out-of-Sample</p>
+      </div>
+    </div>
+
+    <div class="topbar-right tabular">
+      <span class="badge" id="topbarPriceBadge">BTC: $--</span>
+      <span class="badge" id="topbarModelBadge">Modello: 5M</span>
+      <a href="/" class="btn-nav-back">&#8592; Torna al Dashboard Generale</a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="section-head">
+      <div>
+        <h2>Demo Criptovalute: Analisi Predittiva e Backtest della Strategia</h2>
+        <p>
+          Genera segnali operativi (BUY, SELL, HOLD) basati sui 21 quantili di Timestral e ne valida l'efficacia reale separando
+          i dati in <strong>In-Sample (Ottimizzazione)</strong> e <strong>Out-of-Sample (Verifica al buio)</strong>, calcolando Profit Factor,
+          Win Rate, Max Drawdown e Sharpe Ratio con detrazione delle commissioni (0.075%).
+        </p>
+      </div>
+    </div>
+
+    <!-- LIVE SIGNAL STRIP -->
+    <div class="live-signal-bar" id="liveSignalBar">
+      <div>
+        <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;">
+          Segnale Live in Tempo Reale sull'Ultima Candela
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.35rem;flex-wrap:wrap;">
+          <div class="signal-pill tabular" id="liveActionPill" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);">
+            CALCOLO SEGNALE...
+          </div>
+          <span class="badge" id="liveConfidenceBadge">Confidenza: --</span>
+          <span class="tabular" style="font-size:13px;color:var(--text-secondary);" id="livePriceSpan">Prezzo Attuale: $--</span>
+        </div>
+      </div>
+      <div class="tabular" style="display:flex;gap:1.5rem;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;">
+        <div>Rendimento Atteso q50: <strong id="liveExpRet" style="color:var(--text-primary);">--%</strong></div>
+        <div>Downside Risk q10: <strong id="liveDownside" style="color:var(--text-primary);">--%</strong></div>
+        <div>Upside q90: <strong id="liveUpside" style="color:var(--text-primary);">--%</strong></div>
+        <div>Risk/Reward: <strong id="liveRr" style="color:var(--text-primary);">--</strong></div>
+      </div>
+    </div>
+
+    <div class="workbench-grid">
+      <!-- CONTROLS PANEL -->
+      <aside class="panel">
+        <div class="panel-title">
+          <span>Parametri Strategia</span>
+          <span class="badge">Binance Real-Time</span>
+        </div>
+
+        <div class="control-group">
+          <label for="cpSymbolSelect">Criptovaluta (Demo Label)</label>
+          <select id="cpSymbolSelect" onchange="runCryptoBacktest()">
+            <option value="BTCUSDT" selected>BTC/USDT (Bitcoin)</option>
+            <option value="ETHUSDT">ETH/USDT (Ethereum)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="cpIntervalSelect">Timeframe Candele</label>
+          <select id="cpIntervalSelect" onchange="onIntervalChanged()">
+            <option value="15m">15 Minuti (15m · Intraday Scalping)</option>
+            <option value="1h" selected>1 Ora (1h · Swing Trading)</option>
+            <option value="4h">4 Ore (4h · Trend Following)</option>
+            <option value="1d">1 Giorno (1d · Posizionale)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="cpStrategySelect">Modalit&agrave; Strategia</label>
+          <select id="cpStrategySelect" onchange="runCryptoBacktest()">
+            <option value="long_short" selected>Long &amp; Short (Futures &middot; Trend Follow)</option>
+            <option value="long_only">Long Only (Spot &middot; Acquisto/Cash)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="cpModelSelect">Taglia Modello Timestral</label>
+          <select id="cpModelSelect" onchange="runCryptoBacktest()">
+            <option value="5M" selected>Timestral-5M (21 MB · Reattivit&agrave; Istantanea)</option>
+            <option value="28M">Timestral-28M (111 MB)</option>
+            <option value="123M">Timestral-123M (490 MB)</option>
+            <option value="209M">Timestral-209M (837 MB · Massima Capacit&agrave;)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label for="cpSplitRange">
+            <span>Split In-Sample / Out-of-Sample</span>
+            <span class="tabular" id="cpSplitVal">70% IS / 30% OOS</span>
+          </label>
+          <input type="range" id="cpSplitRange" min="50" max="80" step="5" value="70"
+            oninput="document.getElementById('cpSplitVal').textContent = this.value + '% IS / ' + (100 - this.value) + '% OOS'"
+            onchange="runCryptoBacktest()" />
+        </div>
+
+        <div class="control-group">
+          <label for="cpThresholdInput">Soglia Segnale (Variazione q50 %)</label>
+          <input type="number" id="cpThresholdInput" value="0.12" step="0.01" min="0.02" max="3.0" />
+        </div>
+
+        <div class="control-group">
+          <label for="cpDownsideInput">Limite Rischio Downside q10 (%)</label>
+          <input type="number" id="cpDownsideInput" value="-1.2" step="0.1" max="-0.1" min="-6.0" />
+        </div>
+
+        <div class="control-group">
+          <label for="cpFeeInput">Commissione Taker Fee (% per operazione)</label>
+          <input type="number" id="cpFeeInput" value="0.075" step="0.005" min="0.0" max="0.5" />
+        </div>
+
+        <button class="btn-primary" id="btnRunCrypto" onclick="runCryptoBacktest()">
+          Esegui Backtest &amp; Aggiorna Segnale Live
+        </button>
+
+        <div class="mechanism-box" style="margin-top:1rem;font-size:12px;">
+          <strong>Regola Segnale Risk-Adjusted:</strong><br/>
+          &bull; <strong>BUY / LONG</strong>: se la mediana futura q50 sale &ge; <span id="lblThresh">0.12%</span> E il rischio di coda q10 non scende sotto <span id="lblDown">-1.2%</span>.<br/>
+          &bull; <strong>SELL / SHORT</strong>: se la mediana q50 scende sotto &minus;<span id="lblThreshNeg">0.12%</span> (o uscita in Cash in Long Only).<br/>
+          &bull; <strong>HOLD</strong>: se l'aspettativa &egrave; piatta o il rischio/rendimento &egrave; sfavorevole.
+        </div>
+      </aside>
+
+      <!-- RESULTS & CHARTS -->
+      <div>
+        <!-- OVERALL KPIS -->
+        <div class="kpi-grid">
+          <div class="kpi-card" id="cardProfitFactor">
+            <div class="kpi-label">1. Profit Factor (OOS Cieco)</div>
+            <div class="kpi-value" id="kpiProfitFactor">--</div>
+            <div class="kpi-sub" id="kpiPfSub">&gt; 1.5 soglia ottimale</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">2. Win Rate (% Profittevoli)</div>
+            <div class="kpi-value" id="kpiWinRate">--%</div>
+            <div class="kpi-sub" id="kpiTradesCount">Trade chiusi: --</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Max Drawdown (%)</div>
+            <div class="kpi-value" id="kpiMaxDd" style="color:#f43f5e;">--%</div>
+            <div class="kpi-sub">Massima caduta picco-valle</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Sharpe Ratio</div>
+            <div class="kpi-value" id="kpiSharpe">--</div>
+            <div class="kpi-sub">Rendimento corretto per rischio</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Rendimento Netto OOS</div>
+            <div class="kpi-value" id="kpiNetPnl">--%</div>
+            <div class="kpi-sub" id="kpiFinalCap">Capitale Base: $10,000</div>
+          </div>
+        </div>
+
+        <!-- 3. IN-SAMPLE vs OUT-OF-SAMPLE SIDE-BY-SIDE AUDIT CARD -->
+        <div class="sample-cmp-card">
+          <div class="panel-title">
+            <span>3. Confronto Campioni Storici: In-Sample (Ottimizzazione) vs Out-of-Sample (Verifica al Buio)</span>
+            <span class="badge badge-emerald" id="badgeOosCheck">Controllo Overfitting</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table tabular" id="sampleCmpTable">
+              <thead>
+                <tr>
+                  <th>Campione Storico</th>
+                  <th>Trade Eseguiti</th>
+                  <th>Win Rate (%)</th>
+                  <th>Profit Factor</th>
+                  <th>Max Drawdown (%)</th>
+                  <th>Sharpe Ratio</th>
+                  <th>Profitto Netto (%)</th>
+                  <th>Giudizio Efficienza</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CANDLESTICK / PRICE CHART WITH IS/OOS CUTOFF & TRADE MARKERS -->
+        <div class="chart-stage">
+          <div class="chart-legend">
+            <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Prezzo Chiusura</span>
+            <span class="legend-item"><span class="swatch" style="background:#64748b;"></span> Split In-Sample / Out-of-Sample</span>
+            <span class="legend-item"><span class="swatch" style="background:#10b981;height:5px;"></span> BUY Entry (Long)</span>
+            <span class="legend-item"><span class="swatch" style="background:#a855f7;height:5px;"></span> SHORT Entry</span>
+            <span class="legend-item"><span class="swatch" style="background:#f43f5e;height:5px;"></span> Chiusura Posizione</span>
+            <span class="legend-item"><span class="swatch" style="background:#ff5a1f;height:4px;"></span> Cono Predittivo Timestral (q10..q90)</span>
+          </div>
+          <svg id="cryptoChartSvg" class="chart-svg" role="img" aria-label="Grafico serie storica crypto con segnali Buy/Sell e cono predittivo Timestral"></svg>
+          <div class="chart-readout" id="cryptoChartReadout">
+            Muovi il cursore per ispezionare candele, trade registrati e previsione probabilistica.
+          </div>
+        </div>
+
+        <!-- CONTINUOUS EQUITY CURVE STAGE -->
+        <div class="chart-stage">
+          <div class="panel-title" style="margin-bottom:0.4rem;">
+            <span>Curva Continua dell'Equity Mark-to-Market (con detrazione fee 0.075%)</span>
+            <span class="badge badge-emerald" id="equityCurBadge">Base $10,000 USDT</span>
+          </div>
+          <svg id="equityChartSvg" class="chart-svg" style="height:190px;" role="img" aria-label="Curva continua dell equity di portafoglio"></svg>
+          <div class="chart-readout" id="equityChartReadout">
+            Mostra l'andamento reale candela per candela: linea tratteggiata = separazione In-Sample vs Out-of-Sample.
+          </div>
+        </div>
+
+        <!-- SIMULATORE INVESTIMENTO MANUALE & STIMA RESA -->
+        <div class="panel" style="margin-bottom:1rem;" id="investmentSimulatorCard">
+          <div class="panel-title">
+            <span>Simulatore Investimento Manuale &amp; Stima Resa (con Timestral 21 Quantili)</span>
+            <span class="badge badge-mistral">Calcolatore Rischio / Resa</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;align-items:start;">
+            <!-- Inputs -->
+            <div style="background:var(--bg-base);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-default);">
+              <div class="control-group">
+                <label for="simCapitalInput">
+                  <span>Importo da Investire (&euro; / USDT)</span>
+                  <span id="simCryptoEquiv" class="tabular" style="color:var(--accent-mistral);font-weight:600;">--</span>
+                </label>
+                <input type="number" id="simCapitalInput" value="1000" min="10" step="50" oninput="runInvestmentSimulation()" />
+                <div style="display:flex;gap:0.35rem;margin-top:0.4rem;flex-wrap:wrap;">
+                  <button type="button" class="btn-preset" onclick="setSimCapital(100)">100 &euro;</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(500)">500 &euro;</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(1000)">1.000 &euro;</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(5000)">5.000 &euro;</button>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label for="simLeverageSelect">Leva Finanziaria (Futures / Margin)</label>
+                <select id="simLeverageSelect" onchange="runInvestmentSimulation()">
+                  <option value="1.0" selected>1x (Spot Reale &middot; Zero Rischio Liquidazione)</option>
+                  <option value="2.0">2x (Leva Bassa &middot; Rendimento &times;2)</option>
+                  <option value="3.0">3x (Leva Moderata &middot; Rendimento &times;3)</option>
+                  <option value="5.0">5x (Leva Alta &middot; Rischio Elevato)</option>
+                </select>
+              </div>
+
+              <div class="control-group" style="margin-bottom:0;">
+                <label for="simHorizonSelect">Orizzonte di Uscita</label>
+                <select id="simHorizonSelect" onchange="runInvestmentSimulation()">
+                  <option value="6">6 candele</option>
+                  <option value="12" selected>12 candele (Orizzonte Standard)</option>
+                  <option value="24">24 candele</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Simulation KPI Cards -->
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.6rem;flex-wrap:wrap;">
+                <div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;">
+                  Valutazione Timestral:
+                </div>
+                <div id="simVerdictBadge" class="signal-pill tabular" style="font-size:12px;padding:0.25rem 0.65rem;">
+                  CALCOLO...
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:0.5rem;">
+                <div class="kpi-card" style="padding:0.5rem 0.75rem;">
+                  <div class="kpi-label">Resa Base (q50)</div>
+                  <div class="kpi-value tabular" id="simYieldBase" style="font-size:16px;">--</div>
+                  <div class="kpi-sub" id="simReturnPctBase">--%</div>
+                </div>
+                <div class="kpi-card highlight-profit" style="padding:0.5rem 0.75rem;">
+                  <div class="kpi-label">Target Bull (q90)</div>
+                  <div class="kpi-value tabular" id="simYieldBull" style="font-size:16px;color:#10b981;">--</div>
+                  <div class="kpi-sub" id="simReturnPctBull">--%</div>
+                </div>
+                <div class="kpi-card highlight-loss" style="padding:0.5rem 0.75rem;">
+                  <div class="kpi-label">Rischio Bear (q10)</div>
+                  <div class="kpi-value tabular" id="simYieldBear" style="font-size:16px;color:#f43f5e;">--</div>
+                  <div class="kpi-sub" id="simReturnPctBear">--%</div>
+                </div>
+                <div class="kpi-card" style="padding:0.5rem 0.75rem;">
+                  <div class="kpi-label">Prob. Vincita</div>
+                  <div class="kpi-value tabular" id="simWinProb" style="font-size:16px;">--%</div>
+                  <div class="kpi-sub">sui 21 quantili</div>
+                </div>
+              </div>
+
+              <!-- Historical OOS Yield Comparison Box -->
+              <div class="mechanism-box" style="margin-top:0.6rem;font-size:12px;" id="simOosBox">
+                <strong>Risultato Storico Out-of-Sample (Test al Buio):</strong><br/>
+                <span id="simOosText">Esegui il backtest per vedere il rendimento storico simulato sul tuo capitale.</span>
+              </div>
+
+              <div id="simLiqAlert" style="display:none;margin-top:0.5rem;padding:0.4rem 0.6rem;background:rgba(244,63,94,0.15);border:1px solid #f43f5e;border-radius:var(--radius-sm);color:#fca5a5;font-size:11px;">
+                &bull; Attenzione: Con questa leva, il quantile estremo q01 tocca il prezzo di liquidazione stimato!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRADES LOG TABLE -->
+        <div class="panel" style="margin-bottom:1rem;">
+          <div class="panel-title">
+            <span>Registro Trade Simulati (Ultimi eseguiti)</span>
+            <span class="badge" id="badgeTradesSample">Log Dettagliato</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table tabular" id="tradesTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tipo</th>
+                  <th>Campione</th>
+                  <th>Prezzo Ingresso</th>
+                  <th>Prezzo Uscita</th>
+                  <th>Durata</th>
+                  <th>PnL Netto (USDT)</th>
+                  <th>Rendimento (%)</th>
+                  <th>Esito</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- GUIDA COMPLETA: COME SI USA QUESTA COSA? -->
+        <div class="panel" id="userGuideCard">
+          <div class="panel-title">
+            <span>Guida all'Uso &middot; Come si usa questo Workbench e come leggere i Dati</span>
+            <span class="badge badge-mistral">Manuale Operativo</span>
+          </div>
+
+          <div class="guide-grid">
+            <div class="guide-card">
+              <h4><span>&#128216;</span> 1. Come Funziona Timestral</h4>
+              <p>
+                Timestral &egrave; un foundation model addestrato su miliardi di punti temporali. Non genera una singola traiettoria rigida, ma calcola
+                <strong>21 quantili probabilistici non incrociati</strong> (da q01 a q99).
+              </p>
+              <ul>
+                <li><strong>Linea tratteggiata arancione (q50)</strong>: La mediana, ossia lo scenario centrale pi&ugrave; probabile.</li>
+                <li><strong>Area ombreggiata arancione (q10..q90)</strong>: L'intervallo di confidenza all'80%. Se si allarga, il mercato &egrave; volatile o incerto.</li>
+              </ul>
+            </div>
+
+            <div class="guide-card">
+              <h4><span>&#127919;</span> 2. Segnali Live (BUY / SELL / HOLD)</h4>
+              <p>
+                Il segnale live analizza l'aspettativa statistica a 12 candele:
+              </p>
+              <ul>
+                <li><strong style="color:#10b981;">BUY / LONG</strong>: La mediana sale &ge; alla soglia minima (es. +0.12%) E il rischio di coda q10 &egrave; protetto.</li>
+                <li><strong style="color:#f43f5e;">SELL / SHORT</strong>: L'aspettativa inverte bruscamente al ribasso (o stop loss). In modalit&agrave; Spot si va liquidi in USDT.</li>
+                <li><strong style="color:#f59e0b;">HOLD / NEUTRAL</strong>: Movimento previsto laterale o rapporto rischio/rendimento non favorevole. Si resta fermi.</li>
+              </ul>
+            </div>
+
+            <div class="guide-card">
+              <h4><span>&#128300;</span> 3. In-Sample vs Out-of-Sample</h4>
+              <p>
+                &Egrave; il metodo scientifico per evitare di <strong>auto-ingannarsi</strong> (overfitting):
+              </p>
+              <ul>
+                <li><strong>In-Sample (IS - 70%)</strong>: Porzione di dati usata per calibrare e testare i parametri.</li>
+                <li><strong>Out-of-Sample (OOS - 30% Cieco)</strong>: Dati recenti che il modello non ha mai visto durante l'analisi. Se la strategia guadagna solo in IS ma perde in OOS, &egrave; una trappola statistica!</li>
+              </ul>
+            </div>
+
+            <div class="guide-card">
+              <h4><span>&#128202;</span> 4. Come Leggere le Metriche</h4>
+              <p>
+                Indicatori finanziari standard verificati:
+              </p>
+              <ul>
+                <li><strong>Profit Factor</strong>: Rapporto tra profitto lordo e perdite lorde. <em>&gt; 1.5 &egrave; ottimale</em>; <em>&lt; 1.0 la strategia &egrave; in perdita</em>.</li>
+                <li><strong>Win Rate %</strong>: Percentuale di trade chiusi in profitto.</li>
+                <li><strong>Max Drawdown</strong>: Massima caduta dal punto pi&ugrave; alto al pi&ugrave; basso dell'equity (misura il rischio sopportato).</li>
+                <li><strong>Sharpe Ratio</strong>: Rendimento generato diviso per la volatilit&agrave; subita.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let g_lastBacktestData = null;
+
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toastContainer");
+      if (!container) return;
+      const el = document.createElement("div");
+      el.className = `toast-msg toast-${type}`;
+      el.setAttribute("role", "alert");
+      el.textContent = msg;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(8px)";
+        setTimeout(() => el.remove(), 250);
+      }, 4500);
+    }
+
+    function onIntervalChanged() {
+      const inter = document.getElementById("cpIntervalSelect").value;
+      const threshEl = document.getElementById("cpThresholdInput");
+      const defaults = { "15m": 0.08, "1h": 0.12, "4h": 0.35, "1d": 0.75 };
+      if (defaults[inter]) {
+        threshEl.value = defaults[inter];
+      }
+      runCryptoBacktest();
+    }
+
+    function setSimCapital(val) {
+      document.getElementById("simCapitalInput").value = val;
+      runInvestmentSimulation();
+    }
+
+    async function runCryptoBacktest() {
+      const sym = document.getElementById("cpSymbolSelect").value;
+      const interval = document.getElementById("cpIntervalSelect").value;
+      const modelSize = document.getElementById("cpModelSelect").value;
+      const strategyMode = document.getElementById("cpStrategySelect").value;
+      const splitRatio = parseInt(document.getElementById("cpSplitRange").value, 10) / 100.0;
+      const thresh = parseFloat(document.getElementById("cpThresholdInput").value) || 0.12;
+      const downside = parseFloat(document.getElementById("cpDownsideInput").value) || -1.2;
+      const fee = parseFloat(document.getElementById("cpFeeInput").value) || 0.075;
+
+      document.getElementById("lblThresh").textContent = thresh + "%";
+      document.getElementById("lblThreshNeg").textContent = thresh + "%";
+      document.getElementById("lblDown").textContent = downside + "%";
+      document.getElementById("topbarModelBadge").textContent = "Modello: " + modelSize;
+
+      const btn = document.getElementById("btnRunCrypto");
+      btn.textContent = `Inferenza Timestral-${modelSize} su ${sym}...`;
+      btn.disabled = true;
+      btn.setAttribute("aria-busy", "true");
+      document.getElementById("cryptoChartSvg")?.setAttribute("aria-busy", "true");
+      document.getElementById("equityChartSvg")?.setAttribute("aria-busy", "true");
+
+      try {
+        const res = await fetch("/api/v1/crypto/backtest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            symbol: sym,
+            interval: interval,
+            model_size: modelSize,
+            strategy_mode: strategyMode,
+            in_sample_ratio: splitRatio,
+            prediction_horizon: 12,
+            signal_threshold_pct: thresh,
+            max_downside_q10_pct: downside,
+            fee_pct: fee,
+            initial_capital: 10000.0,
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Errore nel backtest crypto");
+        g_lastBacktestData = data;
+
+        // 1. Live Signal Strip
+        const sig = data.live_signal;
+        const pill = document.getElementById("liveActionPill");
+        pill.textContent = sig.action;
+        pill.style.background = sig.color === "#10b981" ? "rgba(16,185,129,0.18)" : (sig.color === "#f43f5e" ? "rgba(244,63,94,0.18)" : "rgba(245,158,11,0.18)");
+        pill.style.color = sig.color;
+        pill.style.borderColor = sig.color;
+
+        document.getElementById("topbarPriceBadge").textContent = `${sym}: $${data.latest_price.toLocaleString("en-US")}`;
+        document.getElementById("livePriceSpan").textContent = `Prezzo Attuale: $${data.latest_price.toLocaleString("en-US")}`;
+        document.getElementById("liveConfidenceBadge").textContent = `Confidenza: ${sig.confidence}`;
+        document.getElementById("liveExpRet").textContent = `${sig.expected_return_pct >= 0 ? "+" : ""}${sig.expected_return_pct}%`;
+        document.getElementById("liveDownside").textContent = `${sig.downside_risk_q10_pct}%`;
+        document.getElementById("liveUpside").textContent = `+${sig.upside_potential_q90_pct}%`;
+        document.getElementById("liveRr").textContent = sig.risk_reward_ratio;
+
+        // 2. KPIs
+        const oos = data.kpis.out_of_sample;
+        const ovr = data.kpis.overall;
+        const isKpi = data.kpis.in_sample;
+
+        const pfEl = document.getElementById("kpiProfitFactor");
+        pfEl.textContent = oos.profit_factor;
+        const pfCard = document.getElementById("cardProfitFactor");
+        pfCard.className = "kpi-card " + (oos.profit_factor >= 1.5 ? "highlight-profit" : (oos.profit_factor < 1.0 && oos.total_trades > 0 ? "highlight-loss" : ""));
+
+        document.getElementById("kpiWinRate").textContent = `${oos.win_rate_pct}%`;
+        document.getElementById("kpiTradesCount").textContent = `Trade OOS: ${oos.total_trades} (${oos.winning_trades}W / ${oos.losing_trades}L)`;
+        document.getElementById("kpiMaxDd").textContent = `${oos.max_drawdown_pct}%`;
+        document.getElementById("kpiSharpe").textContent = oos.sharpe_ratio;
+        document.getElementById("kpiNetPnl").textContent = `${oos.total_net_pnl_pct >= 0 ? "+" : ""}${oos.total_net_pnl_pct}%`;
+        document.getElementById("kpiFinalCap").textContent = `PnL OOS: $${round2(oos.gross_profit_usdt - oos.gross_loss_usdt)} USDT`;
+
+        // 3. Side-by-Side Sample Comparison Table
+        const judgePf = (pf, trds) => {
+          if (trds === 0) return `<span style="color:#8ca0b5;">NESSUN TRADE</span>`;
+          if (pf >= 1.5) return `<span style="color:#10b981;font-weight:700;">OTTIMO (&ge; 1.5)</span>`;
+          if (pf >= 1.0) return `<span style="color:#f59e0b;font-weight:600;">PAREGGIO (&ge; 1.0)</span>`;
+          return `<span style="color:#f43f5e;font-weight:700;">INEFFICIENTE (&lt; 1.0)</span>`;
+        };
+
+        const cmpTbody = document.querySelector("#sampleCmpTable tbody");
+        cmpTbody.innerHTML = `
+          <tr>
+            <td><strong>In-Sample (IS ${Math.round(data.in_sample_ratio * 100)}%)</strong></td>
+            <td>${isKpi.total_trades}</td>
+            <td>${isKpi.win_rate_pct}%</td>
+            <td><strong>${isKpi.profit_factor}</strong></td>
+            <td>${isKpi.max_drawdown_pct}%</td>
+            <td>${isKpi.sharpe_ratio}</td>
+            <td style="color:${isKpi.total_net_pnl_pct >= 0 ? '#10b981' : '#f43f5e'};font-weight:600;">
+              ${isKpi.total_net_pnl_pct >= 0 ? '+' : ''}${isKpi.total_net_pnl_pct}%
+            </td>
+            <td>${judgePf(isKpi.profit_factor, isKpi.total_trades)}</td>
+          </tr>
+          <tr style="background:rgba(255,90,31,0.06);">
+            <td><strong style="color:#ff8559;">Out-of-Sample (OOS ${Math.round((1 - data.in_sample_ratio) * 100)}% Cieco)</strong></td>
+            <td><strong>${oos.total_trades}</strong></td>
+            <td><strong>${oos.win_rate_pct}%</strong></td>
+            <td><strong style="color:#ff8559;font-size:14px;">${oos.profit_factor}</strong></td>
+            <td>${oos.max_drawdown_pct}%</td>
+            <td>${oos.sharpe_ratio}</td>
+            <td style="color:${oos.total_net_pnl_pct >= 0 ? '#10b981' : '#f43f5e'};font-weight:700;">
+              ${oos.total_net_pnl_pct >= 0 ? '+' : ''}${oos.total_net_pnl_pct}%
+            </td>
+            <td>${judgePf(oos.profit_factor, oos.total_trades)}</td>
+          </tr>
+        `;
+
+        // 4. Render Candlestick / Price Chart with Markers & Pred Cone
+        renderCryptoPriceChart(data);
+
+        // 5. Render Continuous Equity Curve
+        renderEquityChart(data.equity_curve, data.split_index, data.start_index);
+
+        // 6. Populate Trades Table (last 15)
+        const trdTbody = document.querySelector("#tradesTable tbody");
+        const allTrades = data.trades || [];
+        if (allTrades.length === 0) {
+          trdTbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:1.5rem;">Nessun trade completato con la soglia selezionata (${thresh}%). Abbassa la soglia per aumentare la frequenza.</td></tr>`;
+        } else {
+          const lastTrades = allTrades.slice(-15).reverse();
+          trdTbody.innerHTML = lastTrades
+            .map(
+              (t, idx) => `
+            <tr>
+              <td>#${allTrades.length - idx}</td>
+              <td><span class="badge" style="${t.type === 'LONG' ? 'color:#10b981;border-color:rgba(16,185,129,0.35);' : 'color:#c084fc;border-color:rgba(192,132,252,0.4);'}">${t.type || 'LONG'}</span></td>
+              <td><span class="badge ${t.sample === 'in_sample' ? '' : 'badge-mistral'}">${t.sample === 'in_sample' ? 'In-Sample' : 'Out-of-Sample'}</span></td>
+              <td>$${t.entry_price.toLocaleString('en-US')}</td>
+              <td>$${t.exit_price.toLocaleString('en-US')}</td>
+              <td>${t.holding_bars} barre</td>
+              <td style="color:${t.net_pnl_usdt >= 0 ? '#10b981' : '#f43f5e'};font-weight:600;">
+                ${t.net_pnl_usdt >= 0 ? '+' : ''}$${t.net_pnl_usdt}
+              </td>
+              <td style="color:${t.net_pnl_pct >= 0 ? '#10b981' : '#f43f5e'};font-weight:600;">
+                ${t.net_pnl_pct >= 0 ? '+' : ''}${t.net_pnl_pct}%
+              </td>
+              <td>${t.net_pnl_pct >= 0 ? '<span style="color:#10b981">&#10003; WIN</span>' : '<span style="color:#f43f5e">&#10007; LOSS</span>'}</td>
+            </tr>`
+            )
+            .join("");
+        }
+
+        // 7. Update Investment Simulator
+        await runInvestmentSimulation();
+
+        showToast(`Backtest completato su ${sym} (${interval}): ${allTrades.length} trade eseguiti.`, "success");
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.textContent = "Esegui Backtest & Aggiorna Segnale Live";
+        btn.disabled = false;
+        btn.removeAttribute("aria-busy");
+        document.getElementById("cryptoChartSvg")?.removeAttribute("aria-busy");
+        document.getElementById("equityChartSvg")?.removeAttribute("aria-busy");
+      }
+    }
+
+    function round2(num) {
+      return (Math.round((num + Number.EPSILON) * 100) / 100).toFixed(2);
+    }
+
+    async function runInvestmentSimulation() {
+      const sym = document.getElementById("cpSymbolSelect").value;
+      const interval = document.getElementById("cpIntervalSelect").value;
+      const modelSize = document.getElementById("cpModelSelect").value;
+      const capital = parseFloat(document.getElementById("simCapitalInput").value) || 1000.0;
+      const leverage = parseFloat(document.getElementById("simLeverageSelect").value) || 1.0;
+      const horizon = parseInt(document.getElementById("simHorizonSelect").value, 10) || 12;
+
+      try {
+        const res = await fetch("/api/v1/crypto/simulate-investment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            symbol: sym,
+            interval: interval,
+            model_size: modelSize,
+            investment_amount: capital,
+            leverage: leverage,
+            prediction_horizon: horizon,
+          }),
+        });
+
+        if (!res.ok) return;
+        const sim = await res.json();
+
+        // Update UI
+        const cryptoSym = sym.startsWith("BTC") ? "BTC" : "ETH";
+        document.getElementById("simCryptoEquiv").textContent = `~ ${sim.position_size_crypto} ${cryptoSym}`;
+
+        const vBadge = document.getElementById("simVerdictBadge");
+        vBadge.textContent = sim.recommendation.verdict;
+        vBadge.style.color = sim.recommendation.color;
+        vBadge.style.borderColor = sim.recommendation.color;
+        vBadge.style.background = sim.recommendation.color === "#10b981" ? "rgba(16,185,129,0.18)" : (sim.recommendation.color === "#f43f5e" ? "rgba(244,63,94,0.18)" : "rgba(245,158,11,0.18)");
+
+        const base = sim.scenarios.base_case_q50;
+        const bull = sim.scenarios.bullish_target_q90;
+        const bear = sim.scenarios.bearish_risk_q10;
+
+        document.getElementById("simYieldBase").textContent = `${base.net_yield_amount >= 0 ? "+" : ""}${base.net_yield_amount} €`;
+        document.getElementById("simYieldBase").style.color = base.net_yield_amount >= 0 ? "#10b981" : "#f43f5e";
+        document.getElementById("simReturnPctBase").textContent = `${base.leveraged_return_pct >= 0 ? "+" : ""}${base.leveraged_return_pct}% netto`;
+
+        document.getElementById("simYieldBull").textContent = `+${bull.net_yield_amount} €`;
+        document.getElementById("simReturnPctBull").textContent = `+${bull.leveraged_return_pct}% netto`;
+
+        document.getElementById("simYieldBear").textContent = `${bear.net_yield_amount} €`;
+        document.getElementById("simReturnPctBear").textContent = `${bear.leveraged_return_pct}% netto`;
+
+        document.getElementById("simWinProb").textContent = `${sim.win_probability_pct}%`;
+
+        // Liquidation Alert
+        const liqEl = document.getElementById("simLiqAlert");
+        if (sim.liquidation_warning && sim.liquidation_price) {
+          liqEl.style.display = "block";
+          liqEl.innerHTML = `&bull; <strong>Allerta Rischio Liquidazione:</strong> Con leva ${leverage}x, la coda estrema q01 ($${sim.scenarios.extreme_worst_q01.target_price}) scende sotto il prezzo di liquidazione stimato a $${sim.liquidation_price}!`;
+        } else {
+          liqEl.style.display = "none";
+        }
+
+        // Out-of-Sample Historical simulation text
+        if (g_lastBacktestData && g_lastBacktestData.kpis && g_lastBacktestData.kpis.out_of_sample) {
+          const oosPnlPct = g_lastBacktestData.kpis.out_of_sample.total_net_pnl_pct;
+          const oosYield = round2(capital * (oosPnlPct / 100.0));
+          const oosFinal = round2(capital + parseFloat(oosYield));
+          const col = oosPnlPct >= 0 ? "#10b981" : "#f43f5e";
+          document.getElementById("simOosText").innerHTML = `Se avessi investito questi <strong>${capital.toLocaleString('it-IT')} &euro;</strong> durante il periodo Out-of-Sample (dati al buio), il capitale sarebbe ora di <strong style="color:${col};">${oosFinal} &euro;</strong> (Resa netta: <strong style="color:${col};">${oosPnlPct >= 0 ? '+' : ''}${oosYield} &euro; / ${oosPnlPct}%</strong>).`;
+        }
+      } catch (e) {
+        console.error("Simulation error", e);
+      }
+    }
+
+    function renderCryptoPriceChart(data) {
+      const svg = document.getElementById("cryptoChartSvg");
+      const readout = document.getElementById("cryptoChartReadout");
+      const candles = data.candles;
+      const closes = candles.map(c => c[4]);
+      const splitIdx = data.split_index;
+      const trades = data.trades || [];
+      const liveSig = data.live_signal;
+      const horizon = liveSig.forecast_median.length;
+      const totalSteps = closes.length + horizon;
+
+      const width = 940;
+      const height = 340;
+      const pad = { top: 24, right: 28, bottom: 32, left: 68 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      const allVals = [...closes, ...liveSig.q10, ...liveSig.q90];
+      const minV = Math.min(...allVals);
+      const maxV = Math.max(...allVals);
+      const span = maxV - minV || 1;
+      const yMin = minV - span * 0.05;
+      const yMax = maxV + span * 0.08;
+
+      const xPos = idx => pad.left + (idx / Math.max(totalSteps - 1, 1)) * plotW;
+      const yPos = val => pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+
+      let html = `<title>${data.symbol} (${data.interval}) — Chiusura $${data.latest_price}, Segnale ${liveSig.action}</title><desc>Grafico serie storica crypto con ${trades.length} trade eseguiti e cono predittivo Timestral a ${horizon} barre future.</desc>`;
+
+      // Grid lines
+      for (let i = 0; i <= 4; i++) {
+        const v = yMin + ((yMax - yMin) * i) / 4;
+        const y = yPos(v);
+        html += `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${width - pad.right}" y2="${y.toFixed(1)}" stroke="#1e242d" stroke-width="1"/>`;
+        html += `<text x="${pad.left - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#8ca0b5" font-family="monospace" font-size="11">$${v.toFixed(0)}</text>`;
+      }
+
+      // Vertical Split line (In-Sample vs Out-of-Sample)
+      const sx = xPos(splitIdx);
+      html += `<line x1="${sx.toFixed(1)}" y1="${pad.top}" x2="${sx.toFixed(1)}" y2="${height - pad.bottom}" stroke="#8ca0b5" stroke-dasharray="4 4" stroke-width="1.5"/>`;
+      html += `<text x="${(sx - 8).toFixed(1)}" y="${pad.top + 14}" text-anchor="end" fill="#8ca0b5" font-family="monospace" font-size="10">IN-SAMPLE</text>`;
+      html += `<text x="${(sx + 8).toFixed(1)}" y="${pad.top + 14}" fill="#ff8559" font-family="monospace" font-size="10">OUT-OF-SAMPLE (CIECO)</text>`;
+
+      // Historical Close Price Line
+      let pathD = "";
+      closes.forEach((c, idx) => {
+        const px = xPos(idx).toFixed(1);
+        const py = yPos(c).toFixed(1);
+        pathD += (idx === 0 ? `M ${px} ${py}` : ` L ${px} ${py}`);
+      });
+      html += `<path d="${pathD}" fill="none" stroke="#94a3b8" stroke-width="2"/>`;
+
+      // Trade markers on historical line
+      trades.forEach(t => {
+        const enX = xPos(t.entry_idx).toFixed(1);
+        const enY = yPos(t.entry_price).toFixed(1);
+        const exX = xPos(t.exit_idx).toFixed(1);
+        const exY = yPos(t.exit_price).toFixed(1);
+        if (t.type === "SHORT") {
+          // SHORT marker (purple triangle down)
+          html += `<polygon points="${enX},${enY + 5} ${enX - 4},${enY - 4} ${enX + 4},${enY - 4}" fill="#a855f7"/>`;
+        } else {
+          // BUY marker (green triangle up)
+          html += `<polygon points="${enX},${enY - 5} ${enX - 4},${enY + 4} ${enX + 4},${enY + 4}" fill="#10b981"/>`;
+        }
+        // EXIT marker (red dot)
+        html += `<circle cx="${exX}" cy="${exY}" r="3.5" fill="#f43f5e" stroke="#0b0d10" stroke-width="1"/>`;
+      });
+
+      // Live Timestral Forecast Cone on the future
+      const startLive = closes.length - 1;
+      const topPts = [];
+      const botPts = [];
+      for (let i = 0; i < horizon; i++) {
+        const px = xPos(startLive + i + 1).toFixed(1);
+        topPts.push(`${px},${yPos(liveSig.q90[i]).toFixed(1)}`);
+        botPts.unshift(`${px},${yPos(liveSig.q10[i]).toFixed(1)}`);
+      }
+      const anchorX = xPos(startLive).toFixed(1);
+      const anchorY = yPos(closes[startLive]).toFixed(1);
+      topPts.unshift(`${anchorX},${anchorY}`);
+      botPts.push(`${anchorX},${anchorY}`);
+      html += `<polygon points="${topPts.concat(botPts).join(' ')}" fill="rgba(255,90,31,0.22)"/>`;
+
+      let medD = `M ${anchorX} ${anchorY}`;
+      for (let i = 0; i < horizon; i++) {
+        medD += ` L ${xPos(startLive + i + 1).toFixed(1)} ${yPos(liveSig.forecast_median[i]).toFixed(1)}`;
+      }
+      html += `<path d="${medD}" fill="none" stroke="#ff5a1f" stroke-width="2.5" stroke-dasharray="4 2"/>`;
+
+      // Live pulse marker on latest candle
+      html += `<circle cx="${anchorX}" cy="${anchorY}" r="5" fill="#ff5a1f" stroke="#0b0d10" stroke-width="1.5"/>`;
+
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.innerHTML = html;
+
+      readout.innerHTML = `<span><strong>${data.symbol} (${data.interval})</strong>: Ultima chiusura $${data.latest_price.toLocaleString('en-US')}</span>
+        <span>Segnale: <strong style="color:${liveSig.color}">${liveSig.action}</strong></span>
+        <span>Orizzonte futuro: <strong>+${horizon} candele</strong></span>`;
+    }
+
+    function renderEquityChart(equity, splitIdx, startIdx) {
+      const svg = document.getElementById("equityChartSvg");
+      const readout = document.getElementById("equityChartReadout");
+      if (!equity || equity.length < 2) return;
+      const width = 940;
+      const height = 190;
+      const pad = { top: 16, right: 28, bottom: 24, left: 68 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      const minE = Math.min(...equity);
+      const maxE = Math.max(...equity);
+      const span = maxE - minE || 1;
+      const yMin = minE - span * 0.08;
+      const yMax = maxE + span * 0.08;
+
+      const xPos = idx => pad.left + (idx / (equity.length - 1)) * plotW;
+      const yPos = val => pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+
+      let html = `<title>Curva Continua Equity Mark-to-Market</title><desc>Andamento del capitale di portafoglio su ${equity.length} candele continue.</desc>`;
+      // Baseline 10000 line
+      const base10k = yPos(10000.0);
+      html += `<line x1="${pad.left}" y1="${base10k.toFixed(1)}" x2="${width - pad.right}" y2="${base10k.toFixed(1)}" stroke="#64748b" stroke-dasharray="3 3"/>`;
+
+      // Split line (IS vs OOS) on equity
+      if (typeof splitIdx === "number" && typeof startIdx === "number") {
+        const relSplit = Math.max(0, Math.min(equity.length - 1, splitIdx - startIdx));
+        const sx = xPos(relSplit).toFixed(1);
+        html += `<line x1="${sx}" y1="${pad.top}" x2="${sx}" y2="${height - pad.bottom}" stroke="#8ca0b5" stroke-dasharray="4 4" stroke-width="1.2"/>`;
+        html += `<text x="${(sx - 6)}" y="${pad.top + 12}" text-anchor="end" fill="#8ca0b5" font-family="monospace" font-size="9">IS</text>`;
+        html += `<text x="${(parseFloat(sx) + 6).toFixed(1)}" y="${pad.top + 12}" fill="#ff8559" font-family="monospace" font-size="9">OOS</text>`;
+      }
+
+      let pathD = "";
+      equity.forEach((v, i) => {
+        const px = xPos(i).toFixed(1);
+        const py = yPos(v).toFixed(1);
+        pathD += (i === 0 ? `M ${px} ${py}` : ` L ${px} ${py}`);
+      });
+      const endEq = equity[equity.length - 1];
+      const eqColor = endEq >= 10000.0 ? "#10b981" : "#f43f5e";
+      html += `<path d="${pathD}" fill="none" stroke="${eqColor}" stroke-width="2.5"/>`;
+
+      html += `<text x="${pad.left}" y="${height - 6}" fill="#8ca0b5" font-family="monospace" font-size="10">Inizio: $10,000</text>`;
+      html += `<text x="${width - pad.right}" y="${height - 6}" text-anchor="end" fill="${eqColor}" font-family="monospace" font-size="11" font-weight="700">Finale: $${endEq.toLocaleString('en-US')}</text>`;
+
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.innerHTML = html;
+
+      readout.innerHTML = `<span>Punti serie continua: <strong>${equity.length} candele</strong></span>
+        <span>Minimo toccato: <strong>$${minE.toLocaleString('en-US')}</strong></span>
+        <span>Massimo toccato: <strong>$${maxE.toLocaleString('en-US')}</strong></span>
+        <span>Risultato Finale: <strong style="color:${eqColor}">$${endEq.toLocaleString('en-US')}</strong></span>`;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      runCryptoBacktest();
+    });
+  </script>
+</body>
+</html>

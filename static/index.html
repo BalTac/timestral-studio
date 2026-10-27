@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timestral Workbench — Previsione Serie Temporali, Holdout Benchmark & AI Agent API</title>
+  <style>
+    :root {
+      --bg-base: #0b0d10;
+      --bg-surface: #12151a;
+      --bg-elevated: #171b22;
+      --bg-subtle: #1e242d;
+      --border-default: #252c37;
+      --border-strong: #364050;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #8ca0b5;
+      --accent-mistral: #ff5a1f;
+      --accent-mistral-soft: rgba(255, 90, 31, 0.14);
+      --truth-emerald: #10b981;
+      --truth-emerald-soft: rgba(16, 185, 129, 0.14);
+      --baseline-cyan: #38bdf8;
+      --alert-crimson: #f43f5e;
+      --warn-amber: #f59e0b;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --radius-sm: 4px;
+      --radius-md: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tabular {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Telemetry Bar */
+    header.topbar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-default);
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-mistral);
+      color: #0b0d10;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 15px;
+      display: grid;
+      place-items: center;
+      border-radius: var(--radius-sm);
+    }
+
+    .brand-title h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .badge-mistral {
+      border-color: rgba(255, 90, 31, 0.45);
+      background: var(--accent-mistral-soft);
+      color: #ff8559;
+    }
+
+    .badge-emerald {
+      border-color: rgba(16, 185, 129, 0.45);
+      background: var(--truth-emerald-soft);
+      color: #34d399;
+    }
+
+    .badge-idle {
+      border-color: rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.12);
+      color: #fbbf24;
+    }
+
+    /* Navigation Tabs */
+    nav.primary-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--bg-base);
+      padding: 0.25rem;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      background: transparent;
+      color: var(--text-secondary);
+      border: none;
+      padding: 0.42rem 0.75rem;
+      font-size: 12.5px;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-elevated);
+    }
+
+    .nav-btn[aria-selected="true"] {
+      background: var(--accent-mistral);
+      color: #0b0d10;
+      font-weight: 600;
+    }
+
+    .nav-btn:focus-visible,
+    button:focus-visible,
+    select:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent-mistral);
+      outline-offset: 2px;
+    }
+
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .topbar-select {
+      width: auto;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 0.3rem 0.55rem;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--truth-emerald);
+      display: inline-block;
+    }
+
+    .status-dot.idle {
+      background: var(--warn-amber);
+    }
+
+    /* Main Workspace Layout */
+    main.workspace {
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem 3rem;
+      flex: 1;
+    }
+
+    .view-panel {
+      display: none;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-default);
+      flex-wrap: wrap;
+    }
+
+    .section-head h2 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25rem;
+    }
+
+    .section-head p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      max-width: 78ch;
+    }
+
+    .example-callout-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: #ff8559;
+      background: var(--accent-mistral-soft);
+      border: 1px solid rgba(255, 90, 31, 0.35);
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .example-callout-link:hover {
+      background: rgba(255, 90, 31, 0.24);
+    }
+
+    .workbench-grid {
+      display: grid;
+      grid-template-columns: 330px 1fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .workbench-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .control-group {
+      margin-bottom: 0.85rem;
+    }
+
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.65rem;
+      font-size: 13px;
+      font-family: var(--font-sans);
+    }
+
+    textarea.mono-input {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      resize: vertical;
+      min-height: 76px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent-mistral);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent-mistral);
+      color: #0b0d10;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 1rem;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-subtle);
+    }
+
+    .btn-danger-outline {
+      background: rgba(244, 63, 94, 0.1);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      border-radius: var(--radius-sm);
+      padding: 0.45rem 0.75rem;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-danger-outline:hover {
+      background: rgba(244, 63, 94, 0.2);
+    }
+
+    /* Hardware & Model Telemetry Card */
+    .hw-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .hw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .hw-cell {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.75rem;
+    }
+
+    .hw-cell .lbl {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .hw-cell .val {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 0.15rem;
+    }
+
+    .hw-cell .sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .ttl-bar-track {
+      width: 100%;
+      height: 5px;
+      background: var(--bg-subtle);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 0.35rem;
+    }
+
+    .ttl-bar-fill {
+      height: 100%;
+      background: var(--truth-emerald);
+      transition: width 0.4s linear;
+    }
+
+    /* Metric KPI Strip */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 0.9rem;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+      font-family: var(--font-mono);
+    }
+
+    /* SVG Chart Stage */
+    .chart-stage {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0.75rem;
+      position: relative;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .swatch {
+      width: 14px;
+      height: 3px;
+      display: inline-block;
+      border-radius: 1px;
+    }
+
+    .swatch-band {
+      width: 14px;
+      height: 10px;
+      background: rgba(255, 90, 31, 0.25);
+      border: 1px solid rgba(255, 90, 31, 0.6);
+      display: inline-block;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 340px;
+      display: block;
+      overflow: visible;
+    }
+
+    .chart-readout {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-default);
+      padding: 0.5rem 0.75rem;
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      min-height: 34px;
+      align-items: center;
+    }
+
+    .mechanism-box {
+      background: var(--bg-elevated);
+      border-left: 3px solid var(--accent-mistral);
+      padding: 0.75rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-top: 1rem;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .mechanism-box strong {
+      color: var(--text-primary);
+    }
+
+    .subtab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .subtab-btn {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+      padding: 0.5rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .subtab-btn[aria-selected="true"] {
+      border-color: var(--accent-mistral);
+      background: var(--accent-mistral-soft);
+      color: #ff8559;
+    }
+
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 1rem;
+    }
+
+    .example-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .example-card.highlighted {
+      border-color: var(--accent-mistral);
+      box-shadow: 0 0 0 1px var(--accent-mistral);
+    }
+
+    .example-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 0.35rem;
+    }
+
+    .mini-svg {
+      width: 100%;
+      height: 120px;
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      display: block;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 0.75rem;
+    }
+
+    table.data-table th,
+    table.data-table td {
+      padding: 0.5rem 0.65rem;
+      border-bottom: 1px solid var(--border-default);
+      text-align: left;
+    }
+
+    table.data-table th {
+      color: var(--text-secondary);
+      font-weight: 600;
+      background: var(--bg-elevated);
+    }
+
+    pre.code-block {
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #e2e8f0;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    .doc-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .doc-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .doc-card:hover {
+      border-color: var(--accent-mistral);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header.topbar {
+        padding: 0.5rem 0.75rem;
+      }
+      .topbar-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .topbar-select {
+        flex: 1;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .hw-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    #toastContainer {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+
+    .toast-msg {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem 1rem;
+      font-size: 13px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .toast-error {
+      border-color: rgba(244, 63, 94, 0.6);
+      background: rgba(244, 63, 94, 0.15);
+      color: #fca5a5;
+    }
+
+    .toast-success {
+      border-color: rgba(16, 185, 129, 0.6);
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="toastContainer" aria-live="assertive"></div>
+  <header class="topbar">
+
+    <div class="brand-group">
+      <div class="brand-mark" aria-hidden="true">T</div>
+      <div class="brand-title">
+        <h1>
+          TIMESTRAL WORKBENCH
+          <span class="badge badge-mistral">DHF · 21 QUANTILES</span>
+        </h1>
+        <p>Previsione Zero-Shot, Holdout Benchmark Reale &amp; Endpoint AI Agent (Raspberry Pi 5)</p>
+      </div>
+    </div>
+
+    <nav class="primary-nav" role="tablist" aria-label="Sezioni Principali">
+      <button class="nav-btn" role="tab" aria-selected="true" aria-controls="view-benchmark" data-target="benchmark" id="tab-benchmark">
+        1. Holdout Benchmark
+      </button>
+      <button class="nav-btn" role="tab" aria-selected="false" aria-controls="view-studio" data-target="studio" id="tab-studio">
+        2. Forecast Studio
+      </button>
+      <button class="nav-btn" role="tab" aria-selected="false" aria-controls="view-labs" data-target="labs" id="tab-labs">
+        3. Varianti Native (5 Usi)
+      </button>
+      <button class="nav-btn" role="tab" aria-selected="false" aria-controls="view-examples" data-target="examples" id="tab-examples">
+        4. Esempi Visivi
+      </button>
+      <button class="nav-btn" role="tab" aria-selected="false" aria-controls="view-agent" data-target="agent" id="tab-agent">
+        5. AI Agent &amp; /health
+      </button>
+    </nav>
+
+    <div class="topbar-controls tabular">
+      <label for="globalModelSelect" style="font-size:11px;color:var(--text-secondary);">Modello:</label>
+      <select id="globalModelSelect" class="topbar-select" onchange="syncModelSelection(this.value)" aria-label="Seleziona taglia modello Timestral">
+        <option value="5M" selected>Timestral-5M (21 MB · Default Reattivo)</option>
+        <option value="28M">Timestral-28M (111 MB · On-Demand)</option>
+        <option value="123M">Timestral-123M (490 MB · On-Demand)</option>
+        <option value="209M">Timestral-209M (837 MB · Serie Complesse)</option>
+      </select>
+      <span class="badge badge-emerald" id="topbarMemoryBadge">
+        <span class="status-dot" id="topbarDot"></span>
+        <span id="topbarMemText">5M Ready</span>
+      </span>
+      <span class="badge" id="topbarTtlBadge" title="Auto-unload dalla RAM dopo 300s di inattività">TTL: --s</span>
+      <a href="/crypto" class="btn-secondary" style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:#f59e0b;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;" title="Vai al Workbench Demo Crypto con segnali live e backtest IS/OOS">&#8383; Crypto Workbench &#8594;</a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- =====================================================================
+         VIEW 1: REAL-SERIES HOLDOUT BENCHMARK + CARD HARDWARE/MODELLO PI 5
+         ===================================================================== -->
+    <section class="view-panel active" id="view-benchmark" role="tabpanel" aria-labelledby="tab-benchmark">
+      <div class="section-head">
+        <div>
+          <h2>Holdout Benchmark su Serie Reali &amp; Telemetria Dispositivo (Raspberry Pi 5)</h2>
+          <p>
+            Taglia gli ultimi <code class="tabular">H</code> punti reali della serie (<strong>Ground Truth Holdout</strong>),
+            esegue la previsione con il modello selezionato (default <code>5M</code> per reattività, <code>28M/123M/209M</code> on-demand)
+            e monitora l'impatto reale su CPU/RAM del Raspberry Pi 5 con scarico automatico per inattività (TTL 5 min).
+          </p>
+        </div>
+        <button class="example-callout-link" onclick="jumpToExample('holdout_backtest')">
+          Vedi spiegazione visiva negli Esempi &#8594;
+        </button>
+      </div>
+
+      <!-- DEDICATED CARD: MODEL vs HOST DEVICE (RASPBERRY PI 5) TELEMETRY & LIFECYCLE -->
+      <div class="hw-card" aria-label="Metriche Modello in relazione al Dispositivo Raspberry Pi 5">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+          <div>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <span class="badge badge-mistral" id="hwBoardBadge">Raspberry Pi 5 (ARM64 Cortex-A76 · 4 Cores)</span>
+              <span class="badge badge-emerald" id="hwActiveModelBadge">IN RAM: mistralai/Timestral-5M</span>
+              <span class="badge" id="hwDiskCacheBadge">Cache NVMe: 5M ✓ | 209M ✓</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="btn-secondary" id="btnCompareModels" onclick="runCompareModels(true)" title="Confronta i modelli già presenti nella cache NVMe (1 alla volta in RAM)">
+              Confronta Modelli in Cache (5M vs 209M)
+            </button>
+            <button class="btn-secondary" onclick="runCompareModels(false)" title="Scarica eventuale taglia mancante (28M/123M) e confronta tutti i 4 modelli">
+              Benchmark Completo 4 Modelli (5M..209M)
+            </button>
+            <button class="btn-danger-outline" id="btnUnloadRam" onclick="manualUnloadModel()">
+              Scarica Modello dalla RAM Ora
+            </button>
+          </div>
+        </div>
+
+        <div class="hw-grid">
+          <div class="hw-cell">
+            <div class="lbl">Stato Memoria Modello</div>
+            <div class="val" id="hwStateVal">CARICATO (5M)</div>
+            <div class="sub" id="hwWeightsSub">Pesi: 20.8 MB fp32 (1 slot max)</div>
+          </div>
+          <div class="hw-cell">
+            <div class="lbl">RAM Processo / Sistema Pi 5</div>
+            <div class="val" id="hwRamVal">-- MB RSS</div>
+            <div class="sub" id="hwSysRamSub">Libera Pi 5: -- MB / -- MB</div>
+          </div>
+          <div class="hw-cell">
+            <div class="lbl">CPU Pi 5 (Temp &amp; Load)</div>
+            <div class="val" id="hwCpuVal">-- °C · Load --</div>
+            <div class="sub" id="hwCpuSub">4x Cortex-A76 (CPU-only inference)</div>
+          </div>
+          <div class="hw-cell">
+            <div class="lbl">Latenza &amp; Throughput</div>
+            <div class="val" id="hwPerfVal">-- ms (-- step/s)</div>
+            <div class="sub" id="hwLoadMsSub">Cold-load da NVMe: -- ms</div>
+          </div>
+          <div class="hw-cell">
+            <div class="lbl">Auto-Unload Inattività (YAGNI TTL)</div>
+            <div class="val" id="hwTtlVal">300s rimasti</div>
+            <div class="ttl-bar-track"><div class="ttl-bar-fill" id="hwTtlBar" style="width:100%"></div></div>
+          </div>
+        </div>
+
+        <!-- Multi-model comparison collapsible result table -->
+        <div id="compareModelsContainer" style="display:none;margin-top:0.9rem;padding-top:0.75rem;border-top:1px solid var(--border-default);">
+          <div class="panel-title" style="margin-bottom:0.4rem;">
+            <span>Risultato Benchmark Sequenziale Multi-Modello sul Raspberry Pi 5 (Swap 1-slot in RAM)</span>
+            <button class="btn-secondary" style="padding:0.2rem 0.5rem;font-size:11px;" onclick="document.getElementById('compareModelsContainer').style.display='none'">Chiudi</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table tabular" id="compareModelsTable">
+              <thead>
+                <tr>
+                  <th>Modello</th>
+                  <th>Peso Pesi (MB)</th>
+                  <th>RAM Processo (RSS MB)</th>
+                  <th>Load NVMe (ms)</th>
+                  <th>Inferenza (ms)</th>
+                  <th>Velocità (step/s)</th>
+                  <th>MAE</th>
+                  <th>RMSE</th>
+                  <th>sMAPE (%)</th>
+                  <th>Coverage 90%</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="workbench-grid">
+        <aside class="panel">
+          <div class="panel-title">
+            <span>Configurazione Backtest</span>
+            <span class="badge">Zero-Leakage</span>
+          </div>
+
+          <div class="control-group">
+            <label for="bmDatasetSelect">Serie Temporale Reale</label>
+            <select id="bmDatasetSelect">
+              <option value="grid_load_mw">Carico Rete Elettrica (MW, Orario)</option>
+              <option value="weather_temp_c">Temperatura Stazione Meteo (°C, Oraria)</option>
+              <option value="web_traffic_rps">Traffico API Gateway (Req/s, Orario)</option>
+              <option value="retail_promo_units">Ordini Retail + Covariate Promo (Unità/h)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="bmHoldoutRange">
+              <span>Punti Reali Esclusi (Holdout H)</span>
+              <span class="tabular" id="bmHoldoutVal">48 step</span>
+            </label>
+            <input type="range" id="bmHoldoutRange" min="12" max="96" step="6" value="48" />
+          </div>
+
+          <div class="control-group">
+            <label for="bmModelSelect">Taglia Modello (5M Default · Altri On-Demand)</label>
+            <select id="bmModelSelect" onchange="syncModelSelection(this.value)">
+              <option value="5M" selected>Timestral-5M (21 MB · Default Reattivo)</option>
+              <option value="28M">Timestral-28M (111 MB · On-Demand)</option>
+              <option value="123M">Timestral-123M (490 MB · On-Demand)</option>
+              <option value="209M">Timestral-209M (837 MB · Serie Complesse)</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label style="justify-content: flex-start; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="bmUseCovariates" checked />
+              <span>Usa <code>known_covariates</code> se presenti nel dataset</span>
+            </label>
+          </div>
+
+          <button class="btn-primary" id="btnRunBacktest" onclick="runBacktest()">
+            Esegui Holdout Benchmark
+          </button>
+
+          <div class="control-group" style="margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border-default);">
+            <label for="bmCustomInput">Oppure incolla una tua serie (CSV / numeri separati da virgola)</label>
+            <textarea id="bmCustomInput" class="mono-input" placeholder="Es: 112.4, 118.0, 125.2, 131.0 ... (lascia vuoto per usare il dataset selezionato)"></textarea>
+          </div>
+
+          <div class="mechanism-box" id="bmDatasetDesc">
+            Caricamento descrizione dataset...
+          </div>
+        </aside>
+
+        <div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">MAE Timestral (Errore Medio)</div>
+              <div class="kpi-value" id="kpiMae">--</div>
+              <div class="kpi-sub" id="kpiMaeVsNaive">vs Seasonal Naive: --</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">RMSE (Root Mean Sq. Error)</div>
+              <div class="kpi-value" id="kpiRmse">--</div>
+              <div class="kpi-sub" id="kpiSmape">sMAPE: --%</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Copertura Reale 80% [q10–q90]</div>
+              <div class="kpi-value" id="kpiCov80">--%</div>
+              <div class="kpi-sub">Target nominale: 80.0%</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Copertura Reale 90% [q05–q95]</div>
+              <div class="kpi-value" id="kpiCov90">--%</div>
+              <div class="kpi-sub" id="kpiPinball">Pinball Loss (21q): --</div>
+            </div>
+          </div>
+
+          <div class="chart-stage">
+            <div class="chart-legend">
+              <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Contesto Storico (Input al Modello)</span>
+              <span class="legend-item"><span class="swatch" style="background:#10b981; height:4px;"></span> <strong>Riscontro Reale (Holdout Nascosto)</strong></span>
+              <span class="legend-item"><span class="swatch" style="background:#ff5a1f; height:4px;"></span> Previsione Mediana Timestral (q50)</span>
+              <span class="legend-item"><span class="swatch-band"></span> Cono Probabilistico [q10–q90 &amp; q05–q95]</span>
+              <span class="legend-item"><span class="swatch" style="background:#38bdf8;"></span> Baseline Seasonal Naive</span>
+            </div>
+            <svg id="bmChartSvg" class="chart-svg" role="img" aria-label="Grafico comparativo Holdout Benchmark tra valori reali e previsione Timestral"></svg>
+            <div class="chart-readout" id="bmChartReadout">
+              Muovi il cursore sul grafico per ispezionare step, valore reale osservato, mediana Timestral e quantili.
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top: 1rem;">
+            <div class="panel-title">
+              <span>Tabella Riscontro Puntuale (Primi 12 step dell'orizzonte di Holdout)</span>
+              <span class="badge badge-emerald" id="bmCovBadge">Verifica Fuori Campione</span>
+            </div>
+            <div style="overflow-x: auto;">
+              <table class="data-table tabular" id="bmComparisonTable">
+                <thead>
+                  <tr>
+                    <th>Step Holdout</th>
+                    <th>Reale Osservato</th>
+                    <th>Mediana Timestral (q50)</th>
+                    <th>Errore Assoluto</th>
+                    <th>Intervallo 80% [q10 .. q90]</th>
+                    <th>Intervallo 90% [q05 .. q95]</th>
+                    <th>Dentro Cono 90%?</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         VIEW 2: FORECAST STUDIO (PREVISIONE ZERO-SHOT INTERATTIVA)
+         ===================================================================== -->
+    <section class="view-panel" id="view-studio" role="tabpanel" aria-labelledby="tab-studio">
+      <div class="section-head">
+        <div>
+          <h2>Forecast Studio — Previsione Probabilistica a 21 Quantili</h2>
+          <p>
+            Inserisci o seleziona una serie temporale (anche con valori mancanti <code>null</code>/<code>NaN</code>) e genera previsioni
+            probabilistiche con il modello selezionato nella Topbar (default <code>5M</code>, richiamabili <code>28M/123M/209M</code>).
+          </p>
+        </div>
+        <button class="example-callout-link" onclick="jumpToExample('zero_shot_forecast')">
+          Come funziona DHF + Clampsym &#8594;
+        </button>
+      </div>
+
+      <div class="workbench-grid">
+        <aside class="panel">
+          <div class="panel-title">Parametri Previsione</div>
+
+          <div class="control-group">
+            <label for="stPresetSelect">Carica Serie Preset</label>
+            <select id="stPresetSelect" onchange="loadStudioPreset()">
+              <option value="grid_load_mw">Carico Elettrico Orario (MW)</option>
+              <option value="weather_temp_c">Temperatura Meteo (°C)</option>
+              <option value="web_traffic_rps">Traffico API (req/s)</option>
+              <option value="retail_promo_units">Ordini Retail</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="stContextInput">Valori Contesto Storico (JSON array o CSV)</label>
+            <textarea id="stContextInput" class="mono-input" rows="5"></textarea>
+          </div>
+
+          <div class="control-group">
+            <label for="stHorizonInput">
+              <span>Orizzonte Previsione (prediction_length)</span>
+              <span class="tabular" id="stHorizonVal">36 step</span>
+            </label>
+            <input type="range" id="stHorizonInput" min="6" max="120" step="6" value="36" oninput="document.getElementById('stHorizonVal').textContent = this.value + ' step'" />
+          </div>
+
+          <div class="control-group">
+            <label for="stThresholdInput">Soglia Critica Opzionale (per calcolo rischio)</label>
+            <input type="number" id="stThresholdInput" step="any" placeholder="Es: 35000" />
+          </div>
+
+          <div class="control-group">
+            <label style="justify-content: flex-start; gap: 0.5rem;">
+              <input type="checkbox" id="stSymAvg" checked />
+              <span>Symmetric Averaging (<code>clampsym</code>)</span>
+            </label>
+            <label style="justify-content: flex-start; gap: 0.5rem; margin-top: 0.35rem;">
+              <input type="checkbox" id="stClipNonNeg" checked />
+              <span>Clamp Non-Negative (se contesto &ge; 0)</span>
+            </label>
+          </div>
+
+          <button class="btn-primary" onclick="runStudioForecast()">Genera Previsione 21 Quantili</button>
+        </aside>
+
+        <div>
+          <div class="kpi-grid" id="stKpiGrid">
+            <div class="kpi-card">
+              <div class="kpi-label">Ultimo Valore Osservato</div>
+              <div class="kpi-value" id="stLastVal">--</div>
+              <div class="kpi-sub" id="stTrendBadge">Trend atteso: --</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Picco Mediano Previsto (q50)</div>
+              <div class="kpi-value" id="stPeakMed">--</div>
+              <div class="kpi-sub" id="stMinMed">Minimo q50: --</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Worst-Case Upper (q99)</div>
+              <div class="kpi-value" id="stQ99Peak">--</div>
+              <div class="kpi-sub" id="stQ01Floor">Floor q01: --</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Ampiezza Media Banda 80%</div>
+              <div class="kpi-value" id="stBandWidth">--</div>
+              <div class="kpi-sub">Incertezza media (q90 - q10)</div>
+            </div>
+          </div>
+
+          <div class="chart-stage">
+            <div class="chart-legend">
+              <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Contesto Osservato</span>
+              <span class="legend-item"><span class="swatch" style="background:#ff5a1f; height:4px;"></span> Mediana Prevista (q50)</span>
+              <span class="legend-item"><span class="swatch-band"></span> Fan Chart Quantili [q05–q95 &amp; q10–q90]</span>
+              <span class="legend-item"><span class="swatch" style="background:#f43f5e;"></span> Quantili Estremi [q01 / q99]</span>
+            </div>
+            <svg id="stChartSvg" class="chart-svg" role="img" aria-label="Grafico Forecast Studio con ventaglio di 21 quantili"></svg>
+            <div class="chart-readout" id="stChartReadout">
+              Passa il mouse sul futuro previsto per leggere i 21 quantili di ogni step.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         VIEW 3: VARIANTI NATIVE LAB (TUTTI I 5 USI AGGIUNTIVI)
+         ===================================================================== -->
+    <section class="view-panel" id="view-labs" role="tabpanel" aria-labelledby="tab-labs">
+      <div class="section-head">
+        <div>
+          <h2>Laboratorio Varianti Native di Timestral (5 Applicazioni Avanzate)</h2>
+          <p>
+            Oltre alla previsione standard, la struttura a 21 quantili, il ruolo <code>ROLE_KNOWN_COV</code>, la maschera
+            <code>observation_mask</code> e l'attenzione cross-variata abilitano nativamente 5 usi industriali.
+          </p>
+        </div>
+        <button class="example-callout-link" id="labJumpExampleBtn" onclick="jumpToExample('anomaly_detection')">
+          Apri scheda nella Galleria Esempi &#8594;
+        </button>
+      </div>
+
+      <div class="subtab-bar" role="tablist" aria-label="Seleziona variante nativa">
+        <button class="subtab-btn" role="tab" aria-selected="true" onclick="switchLabVariant('anomalies')" id="subtab-anomalies">
+          A. Anomaly Detection Zero-Shot
+        </button>
+        <button class="subtab-btn" role="tab" aria-selected="false" onclick="switchLabVariant('scenario')" id="subtab-scenario">
+          B. Simulazione Scenari What-If (Covariate)
+        </button>
+        <button class="subtab-btn" role="tab" aria-selected="false" onclick="switchLabVariant('risk')" id="subtab-risk">
+          C. Tail-Risk, VaR &amp; Superamento Soglia
+        </button>
+        <button class="subtab-btn" role="tab" aria-selected="false" onclick="switchLabVariant('missing')" id="subtab-missing">
+          D. Stress-Test Dati Mancanti (NaN Mask)
+        </button>
+        <button class="subtab-btn" role="tab" aria-selected="false" onclick="switchLabVariant('multivariate')" id="subtab-multivariate">
+          E. Previsione Multivariata Congiunta (B, V, T)
+        </button>
+      </div>
+
+      <div class="workbench-grid">
+        <aside class="panel" id="labControlsPanel"></aside>
+        <div>
+          <div class="kpi-grid" id="labKpiGrid"></div>
+          <div class="chart-stage">
+            <div class="chart-legend" id="labChartLegend"></div>
+            <svg id="labChartSvg" class="chart-svg" role="img" aria-label="Grafico interattivo variante nativa Timestral"></svg>
+            <div class="chart-readout" id="labChartReadout"></div>
+          </div>
+          <div class="mechanism-box" id="labExplanationBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         VIEW 4: GALLERIA ESEMPI VISIVI (SPIEGAZIONE VISIVA DI TUTTE LE VARIANTI)
+         ===================================================================== -->
+    <section class="view-panel" id="view-examples" role="tabpanel" aria-labelledby="tab-examples">
+      <div class="section-head">
+        <div>
+          <h2>Galleria Esempi Visivi — Come Funzionano le 7 Modalità di Timestral</h2>
+          <p>
+            Guida visiva interattiva a tutte le applicazioni del modello: ogni scheda mostra il diagramma del meccanismo matematico,
+            quando usarlo e un pulsante per eseguirlo dal vivo nel Workbench.
+          </p>
+        </div>
+      </div>
+
+      <div class="examples-grid" id="examplesGalleryGrid"></div>
+    </section>
+
+    <!-- =====================================================================
+         VIEW 5: AI AGENT ENDPOINT, TOOL SCHEMAS & /HEALTH DIRECTORY
+         ===================================================================== -->
+    <section class="view-panel" id="view-agent" role="tabpanel" aria-labelledby="tab-agent">
+      <div class="section-head">
+        <div>
+          <h2>Endpoint per Agenti AI, Tool Calling (Mistral / OpenAI / MCP) &amp; Zero-Load <code>/health</code></h2>
+          <p>
+            Qualsiasi agente AI può interrogare <code>GET /health</code> senza risvegliare il modello se è in stato <em>idle</em>,
+            scoprire la documentazione (Swagger, ReDoc, Doc, README Markdown, <code>llms.txt</code>) e invocare <code>5M</code>
+            (default) o <code>28M/123M/209M</code> on-demand.
+          </p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom: 1rem;">
+        <div class="panel-title">
+          <span>Indice Endpoint Documentali (Esposti in <code>GET /health</code> per Agenti AI e Umani)</span>
+          <span class="badge badge-emerald">Zero-Load Discovery</span>
+        </div>
+        <div class="doc-links-grid" id="healthDocsGrid"></div>
+      </div>
+
+      <div class="workbench-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="panel">
+          <div class="panel-title">
+            <span>Risposta Live <code>GET /health</code> (Zero-Load)</span>
+            <button class="btn-secondary" onclick="copyText('healthJsonPre')">Copia JSON</button>
+          </div>
+          <pre class="code-block" id="healthJsonPre">Caricamento /health...</pre>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <span>Schema Function-Calling per Agenti AI (<code>GET /api/v1/agent-schema</code>)</span>
+            <button class="btn-secondary" onclick="copyText('agentSchemaPre')">Copia Tool Schema</button>
+          </div>
+          <pre class="code-block" id="agentSchemaPre">Caricamento schema agente...</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // State, Synchronized Model Selector & Idle TTL Client Ticker
+    // -------------------------------------------------------------------------
+    let currentLabVariant = 'anomalies';
+    let selectedModelSize = '5M';
+    let localTtlRemaining = 0;
+    let localTtlLimit = 300;
+    let localModelLoaded = false;
+
+    function syncModelSelection(newSize) {
+      selectedModelSize = newSize;
+      const gSel = document.getElementById('globalModelSelect');
+      const bSel = document.getElementById('bmModelSelect');
+      if (gSel && gSel.value !== newSize) gSel.value = newSize;
+      if (bSel && bSel.value !== newSize) bSel.value = newSize;
+
+      // Trigger live refresh in active view
+      const activePanel = document.querySelector('.view-panel.active');
+      if (activePanel) {
+        if (activePanel.id === 'view-benchmark') runBacktest();
+        else if (activePanel.id === 'view-studio') runStudioForecast();
+        else if (activePanel.id === 'view-labs') switchLabVariant(currentLabVariant);
+      }
+    }
+
+    function updateTelemetryUI(tel) {
+      if (!tel) return;
+      const ms = tel.model_state || {};
+      const hw = tel.hardware || {};
+      const cached = tel.disk_cached_models || {};
+
+      localModelLoaded = Boolean(ms.loaded_in_memory);
+      localTtlRemaining = ms.ttl_remaining_seconds || 0;
+      localTtlLimit = ms.idle_ttl_limit_seconds || 300;
+
+      const dot = document.getElementById('topbarDot');
+      const memBadge = document.getElementById('topbarMemoryBadge');
+      const memText = document.getElementById('topbarMemText');
+      const ttlBadge = document.getElementById('topbarTtlBadge');
+
+      if (localModelLoaded) {
+        dot.classList.remove('idle');
+        memBadge.className = 'badge badge-emerald';
+        memText.textContent = `IN RAM: ${ms.active_model_size} (${hw.process_rss_mb} MB)`;
+        ttlBadge.textContent = `TTL: ${localTtlRemaining}s`;
+        document.getElementById('hwActiveModelBadge').className = 'badge badge-emerald';
+        document.getElementById('hwActiveModelBadge').textContent = `IN RAM: ${ms.active_model_repo}`;
+        document.getElementById('hwStateVal').textContent = `CARICATO (${ms.active_model_size})`;
+        document.getElementById('hwStateVal').style.color = '#10b981';
+        document.getElementById('hwWeightsSub').textContent = `Pesi: ${ms.active_weights_mb} MB fp32 (1-slot attivo)`;
+      } else {
+        dot.classList.add('idle');
+        memBadge.className = 'badge badge-idle';
+        memText.textContent = `IDLE · SCARICATO (${hw.process_rss_mb} MB base)`;
+        ttlBadge.textContent = `TTL: IDLE (0 MB modello)`;
+        document.getElementById('hwActiveModelBadge').className = 'badge badge-idle';
+        document.getElementById('hwActiveModelBadge').textContent = `RAM LIBERATA (Nessun modello caricato)`;
+        document.getElementById('hwStateVal').textContent = `IDLE / SCARICATO`;
+        document.getElementById('hwStateVal').style.color = '#fbbf24';
+        document.getElementById('hwWeightsSub').textContent = `Auto-unloads eseguiti: ${ms.auto_unloads_count || 0}`;
+      }
+
+      const cacheParts = Object.entries(cached).map(([k, ok]) => `${k} ${ok ? '✓' : '⬇'}`);
+      document.getElementById('hwDiskCacheBadge').textContent = `Cache NVMe: ${cacheParts.join(' | ')}`;
+      document.getElementById('hwBoardBadge').textContent = hw.board || 'Raspberry Pi 5';
+
+      document.getElementById('hwRamVal').textContent = `${hw.process_rss_mb} MB RSS`;
+      document.getElementById('hwSysRamSub').textContent = `Disp. Pi 5: ${hw.sys_ram_available_mb} / ${hw.sys_ram_total_mb} MB (${hw.sys_ram_used_pct}% usato)`;
+
+      const tempStr = hw.cpu_temp_c !== null && hw.cpu_temp_c !== undefined ? `${hw.cpu_temp_c} °C` : 'N/A';
+      document.getElementById('hwCpuVal').textContent = `${tempStr} · Load ${hw.load_avg_1m}`;
+      document.getElementById('hwCpuSub').textContent = `${hw.cpu_cores}x Cortex-A76 · Load 5m: ${hw.load_avg_5m}`;
+
+      document.getElementById('hwPerfVal').textContent = `${ms.last_inference_ms || 0} ms (${ms.last_throughput_steps_per_sec || 0} step/s)`;
+      document.getElementById('hwLoadMsSub').textContent = `Ultimo load da NVMe: ${ms.last_load_ms || 0} ms`;
+
+      renderTtlCountdownBar();
+    }
+
+    function renderTtlCountdownBar() {
+      const ttlValEl = document.getElementById('hwTtlVal');
+      const ttlBarEl = document.getElementById('hwTtlBar');
+      const topTtlEl = document.getElementById('topbarTtlBadge');
+      if (!localModelLoaded || localTtlRemaining <= 0) {
+        if (ttlValEl) ttlValEl.textContent = 'Modello scaricato (0 MB in RAM)';
+        if (ttlBarEl) ttlBarEl.style.width = '0%';
+        if (topTtlEl) topTtlEl.textContent = 'IDLE (RAM libera)';
+        return;
+      }
+      const pct = Math.max(0, Math.min(100, (localTtlRemaining / localTtlLimit) * 100));
+      if (ttlValEl) ttlValEl.textContent = `${localTtlRemaining}s / ${localTtlLimit}s prima di auto-unload`;
+      if (ttlBarEl) ttlBarEl.style.width = `${pct.toFixed(1)}%`;
+      if (topTtlEl) topTtlEl.textContent = `TTL: ${localTtlRemaining}s`;
+    }
+
+    // 1-second local countdown ticker; triggers zero-load /health check when timer expires
+    setInterval(async () => {
+      if (localModelLoaded && localTtlRemaining > 0) {
+        localTtlRemaining -= 1;
+        renderTtlCountdownBar();
+        if (localTtlRemaining <= 0) {
+          const r = await fetch('/health');
+          const d = await r.json();
+          updateTelemetryUI({
+            model_state: d.model_telemetry,
+            hardware: d.device_telemetry,
+            disk_cached_models: d.disk_cached_models,
+          });
+        }
+      }
+    }, 1000);
+
+    async function manualUnloadModel() {
+      const btn = document.getElementById('btnUnloadRam');
+      btn.textContent = 'Scaricamento RAM...';
+      const res = await fetch('/api/v1/model/unload', { method: 'POST' });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+      btn.textContent = 'Scarica Modello dalla RAM Ora';
+    }
+
+    async function runCompareModels(onlyCached) {
+      const ds = document.getElementById('bmDatasetSelect').value;
+      const holdout = parseInt(document.getElementById('bmHoldoutRange').value, 10);
+      const btn = document.getElementById('btnCompareModels');
+      const oldText = btn.textContent;
+      btn.textContent = 'Benchmark sequenziale in corso...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/v1/backtest/compare-models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dataset_id: ds,
+            holdout_length: holdout,
+            model_sizes: ['5M', '28M', '123M', '209M'],
+            only_cached: onlyCached,
+          }),
+        });
+        const data = await res.json();
+        updateTelemetryUI(data.telemetry);
+
+        const tbody = document.querySelector('#compareModelsTable tbody');
+        tbody.innerHTML = (data.comparisons || [])
+          .map(
+            row => `
+          <tr>
+            <td><strong style="color:#ff8559;">Timestral-${row.model_size}</strong></td>
+            <td>${row.weights_mb} MB</td>
+            <td>${row.process_rss_mb} MB</td>
+            <td>${row.load_ms} ms</td>
+            <td><strong>${row.inference_ms} ms</strong></td>
+            <td>${row.throughput_steps_per_sec} step/s</td>
+            <td style="color:#10b981;font-weight:600;">${row.mae}</td>
+            <td>${row.rmse}</td>
+            <td>${row.smape_pct}%</td>
+            <td>${row.coverage_90_pct}%</td>
+          </tr>`
+          )
+          .join('');
+        document.getElementById('compareModelsContainer').style.display = 'block';
+      } finally {
+        btn.textContent = oldText;
+        btn.disabled = false;
+      }
+    }
+
+    function activateTab(targetId) {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.setAttribute('aria-selected', btn.dataset.target === targetId ? 'true' : 'false');
+      });
+      document.querySelectorAll('.view-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'view-' + targetId);
+      });
+      if (targetId === 'studio' && !document.getElementById('stContextInput').value) {
+        loadStudioPreset();
+      } else if (targetId === 'labs') {
+        switchLabVariant(currentLabVariant);
+      } else if (targetId === 'examples') {
+        renderExamplesGallery();
+      } else if (targetId === 'agent') {
+        loadAgentAndHealth();
+      }
+    }
+
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.location.hash = btn.dataset.target;
+        activateTab(btn.dataset.target);
+      });
+    });
+
+    function jumpToExample(exampleId) {
+      activateTab('examples');
+      setTimeout(() => {
+        const card = document.getElementById('ex-card-' + exampleId);
+        document.querySelectorAll('.example-card').forEach(c => c.classList.remove('highlighted'));
+        if (card) {
+          card.classList.add('highlighted');
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 60);
+    }
+
+    function launchFromExample(exampleId) {
+      if (exampleId === 'holdout_backtest') {
+        activateTab('benchmark');
+        runBacktest();
+      } else if (exampleId === 'zero_shot_forecast') {
+        activateTab('studio');
+        runStudioForecast();
+      } else {
+        const map = {
+          anomaly_detection: 'anomalies',
+          what_if_scenario: 'scenario',
+          tail_risk_var: 'risk',
+          missing_data_stress: 'missing',
+          multivariate_joint: 'multivariate',
+        };
+        currentLabVariant = map[exampleId] || 'anomalies';
+        activateTab('labs');
+      }
+    }
+
+    document.getElementById('bmHoldoutRange').addEventListener('input', e => {
+      document.getElementById('bmHoldoutVal').textContent = e.target.value + ' step';
+    });
+
+    // -------------------------------------------------------------------------
+    // Native Vector SVG Chart Renderer
+    // -------------------------------------------------------------------------
+    function renderTimeSeriesSvg(svgEl, readoutEl, config) {
+      const width = 920;
+      const height = 340;
+      const pad = { top: 20, right: 24, bottom: 32, left: 58 };
+      const plotW = width - pad.left - pad.right;
+      const plotH = height - pad.top - pad.bottom;
+
+      const totalSteps = config.totalSteps;
+      const allVals = [];
+      (config.seriesList || []).forEach(s => {
+        (s.values || []).forEach(v => {
+          if (v !== null && v !== undefined && Number.isFinite(v)) allVals.push(v);
+        });
+      });
+      (config.bands || []).forEach(b => {
+        (b.lower || []).forEach(v => { if (Number.isFinite(v)) allVals.push(v); });
+        (b.upper || []).forEach(v => { if (Number.isFinite(v)) allVals.push(v); });
+      });
+      if (config.threshold !== undefined && config.threshold !== null && Number.isFinite(config.threshold)) {
+        allVals.push(config.threshold);
+      }
+
+      const minV = allVals.length ? Math.min(...allVals) : 0;
+      const maxV = allVals.length ? Math.max(...allVals) : 1;
+      const span = Math.max(maxV - minV, 1e-5);
+      const yMin = minV - span * 0.06;
+      const yMax = maxV + span * 0.08;
+
+      const xPos = idx => pad.left + (idx / Math.max(totalSteps - 1, 1)) * plotW;
+      const yPos = val => pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
+
+      let html = '';
+
+      for (let i = 0; i <= 4; i++) {
+        const v = yMin + ((yMax - yMin) * i) / 4;
+        const y = yPos(v);
+        html += `<line x1="${pad.left}" y1="${y.toFixed(1)}" x2="${width - pad.right}" y2="${y.toFixed(1)}" stroke="#1e242d" stroke-width="1" />`;
+        html += `<text x="${pad.left - 8}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#64748b" font-family="monospace" font-size="11">${v.toFixed(1)}</text>`;
+      }
+
+      if (config.splitIndex !== undefined && config.splitIndex !== null) {
+        const sx = xPos(config.splitIndex);
+        html += `<rect x="${sx.toFixed(1)}" y="${pad.top}" width="${(width - pad.right - sx).toFixed(1)}" height="${plotH}" fill="rgba(255,90,31,0.03)" />`;
+        html += `<line x1="${sx.toFixed(1)}" y1="${pad.top}" x2="${sx.toFixed(1)}" y2="${height - pad.bottom}" stroke="#64748b" stroke-dasharray="4 4" stroke-width="1.5" />`;
+        html += `<text x="${(sx + 6).toFixed(1)}" y="${pad.top + 13}" fill="#94a3b8" font-family="monospace" font-size="10">${config.splitLabel || 'INIZIO PREVISIONE / HOLDOUT'}</text>`;
+      }
+
+      if (config.threshold !== undefined && config.threshold !== null && Number.isFinite(config.threshold)) {
+        const ty = yPos(config.threshold);
+        html += `<line x1="${pad.left}" y1="${ty.toFixed(1)}" x2="${width - pad.right}" y2="${ty.toFixed(1)}" stroke="#f43f5e" stroke-dasharray="6 3" stroke-width="1.5" />`;
+        html += `<text x="${width - pad.right - 6}" y="${(ty - 5).toFixed(1)}" text-anchor="end" fill="#f43f5e" font-family="monospace" font-size="11">SOGLIA CRITICA: ${config.threshold}</text>`;
+      }
+
+      (config.bands || []).forEach(b => {
+        const offset = b.startIndex || 0;
+        const topPts = [];
+        const botPts = [];
+        for (let i = 0; i < b.upper.length; i++) {
+          if (Number.isFinite(b.upper[i]) && Number.isFinite(b.lower[i])) {
+            const x = xPos(offset + i).toFixed(1);
+            topPts.push(`${x},${yPos(b.upper[i]).toFixed(1)}`);
+            botPts.unshift(`${x},${yPos(b.lower[i]).toFixed(1)}`);
+          }
+        }
+        if (topPts.length > 1) {
+          html += `<polygon points="${topPts.concat(botPts).join(' ')}" fill="${b.fill || 'rgba(255,90,31,0.16)'}" stroke="${b.stroke || 'none'}" />`;
+        }
+      });
+
+      (config.seriesList || []).forEach(s => {
+        const offset = s.startIndex || 0;
+        let pathD = '';
+        let inSeg = false;
+        (s.values || []).forEach((v, i) => {
+          if (v !== null && v !== undefined && Number.isFinite(v)) {
+            const px = xPos(offset + i).toFixed(1);
+            const py = yPos(v).toFixed(1);
+            pathD += (inSeg ? ` L ${px} ${py}` : ` M ${px} ${py}`);
+            inSeg = true;
+          } else {
+            inSeg = false;
+          }
+        });
+        const dash = s.dashed ? `stroke-dasharray="${s.dashed}"` : '';
+        html += `<path d="${pathD}" fill="none" stroke="${s.color}" stroke-width="${s.width || 2}" ${dash} />`;
+      });
+
+      (config.markers || []).forEach(m => {
+        const cx = xPos(m.index).toFixed(1);
+        const cy = yPos(m.value).toFixed(1);
+        html += `<circle cx="${cx}" cy="${cy}" r="${m.r || 4.5}" fill="${m.fill || '#f43f5e'}" stroke="#0b0d10" stroke-width="1.5" />`;
+      });
+
+      const stepTick = Math.max(1, Math.round(totalSteps / 8));
+      for (let t = 0; t < totalSteps; t += stepTick) {
+        const x = xPos(t).toFixed(1);
+        html += `<text x="${x}" y="${height - 10}" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="11">t=${t}</text>`;
+      }
+
+      html += `<line id="${svgEl.id}-cursor" x1="0" y1="${pad.top}" x2="0" y2="${height - pad.bottom}" stroke="#f1f5f9" stroke-width="1" visibility="hidden" />`;
+      html += `<rect id="${svgEl.id}-hit" x="${pad.left}" y="${pad.top}" width="${plotW}" height="${plotH}" fill="transparent" style="cursor:crosshair;" />`;
+
+      svgEl.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svgEl.innerHTML = html;
+
+      const hitRect = document.getElementById(`${svgEl.id}-hit`);
+      const cursorLine = document.getElementById(`${svgEl.id}-cursor`);
+      if (hitRect && readoutEl && config.onHoverStep) {
+        hitRect.addEventListener('mousemove', ev => {
+          const rect = svgEl.getBoundingClientRect();
+          const scaleX = width / rect.width;
+          const relX = (ev.clientX - rect.left) * scaleX - pad.left;
+          const stepIdx = Math.max(0, Math.min(totalSteps - 1, Math.round((relX / plotW) * (totalSteps - 1))));
+          const cx = xPos(stepIdx);
+          cursorLine.setAttribute('x1', cx);
+          cursorLine.setAttribute('x2', cx);
+          cursorLine.setAttribute('visibility', 'visible');
+          readoutEl.innerHTML = config.onHoverStep(stepIdx);
+        });
+        hitRect.addEventListener('mouseleave', () => {
+          cursorLine.setAttribute('visibility', 'hidden');
+        });
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // VIEW 1: Run Holdout Backtest
+    // -------------------------------------------------------------------------
+    async function runBacktest() {
+      const datasetId = document.getElementById('bmDatasetSelect').value;
+      const holdout = parseInt(document.getElementById('bmHoldoutRange').value, 10);
+      const modelSize = selectedModelSize;
+      const useCov = document.getElementById('bmUseCovariates').checked;
+      const customRaw = document.getElementById('bmCustomInput').value.trim();
+
+      let customSeries = null;
+      if (customRaw) {
+        customSeries = customRaw
+          .replace(/[\[\]]/g, '')
+          .split(/[\s,;]+/)
+          .filter(Boolean)
+          .map(x => (x.toLowerCase() === 'null' || x.toLowerCase() === 'nan' ? null : Number(x)));
+      }
+
+      const btn = document.getElementById('btnRunBacktest');
+      btn.textContent = `Inferenza Timestral-${modelSize} in corso...`;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/v1/backtest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dataset_id: datasetId,
+            series: customSeries,
+            holdout_length: holdout,
+            model_size: modelSize,
+            use_covariates: useCov,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Errore backtest');
+
+        updateTelemetryUI(data.telemetry);
+        document.getElementById('bmDatasetDesc').innerHTML = `<strong>${data.dataset_name} (${data.domain})</strong><br/>${data.description}`;
+
+        const tm = data.metrics.timestral;
+        const nm = data.metrics.seasonal_naive;
+        const skill = data.metrics.improvement_vs_naive_mae_pct;
+
+        document.getElementById('kpiMae').textContent = `${tm.mae} ${data.unit}`;
+        document.getElementById('kpiMaeVsNaive').innerHTML =
+          `Naive MAE: ${nm.mae} (${skill >= 0 ? '<span style="color:#10b981">+' + skill + '% migliore</span>' : skill + '%'})`;
+        document.getElementById('kpiRmse').textContent = `${tm.rmse} ${data.unit}`;
+        document.getElementById('kpiSmape').textContent = `sMAPE: ${tm.smape_pct}% (Naive: ${nm.smape_pct}%)`;
+        document.getElementById('kpiCov80').textContent = `${tm.coverage_80_pct}%`;
+        document.getElementById('kpiCov90').textContent = `${tm.coverage_90_pct}%`;
+        document.getElementById('kpiPinball').textContent = `Pinball Loss (21q): ${tm.mean_pinball_loss}`;
+
+        const ctxTail = data.context.slice(-96);
+        const ctxLen = ctxTail.length;
+        const hLen = data.holdout_length;
+        const total = ctxLen + hLen;
+
+        renderTimeSeriesSvg(
+          document.getElementById('bmChartSvg'),
+          document.getElementById('bmChartReadout'),
+          {
+            totalSteps: total,
+            splitIndex: ctxLen,
+            splitLabel: `TAGLIO HOLDOUT (H=${hLen} step · Modello ${data.model_size})`,
+            bands: [
+              { startIndex: ctxLen, lower: data.quantiles.q05, upper: data.quantiles.q95, fill: 'rgba(255, 90, 31, 0.11)' },
+              { startIndex: ctxLen, lower: data.quantiles.q10, upper: data.quantiles.q90, fill: 'rgba(255, 90, 31, 0.23)' },
+            ],
+            seriesList: [
+              { values: ctxTail, startIndex: 0, color: '#94a3b8', width: 1.8 },
+              { values: data.seasonal_naive, startIndex: ctxLen, color: '#38bdf8', width: 1.3, dashed: '3 3' },
+              { values: data.holdout_actual, startIndex: ctxLen, color: '#10b981', width: 2.4 },
+              { values: data.forecast_median, startIndex: ctxLen, color: '#ff5a1f', width: 2.4, dashed: '6 3' },
+            ],
+            onHoverStep: idx => {
+              if (idx < ctxLen) {
+                return `<span><strong>Fase Contesto Storico</strong> (step ${idx})</span><span>Valore Osservato: <strong>${ctxTail[idx]} ${data.unit}</strong></span>`;
+              }
+              const hi = idx - ctxLen;
+              const act = data.holdout_actual[hi];
+              const med = data.forecast_median[hi];
+              const q10 = data.quantiles.q10[hi];
+              const q90 = data.quantiles.q90[hi];
+              const err = Math.abs(act - med).toFixed(2);
+              return `<span><strong>Holdout +${hi + 1} (${data.model_size})</strong></span>
+                      <span style="color:#10b981">Reale: <strong>${act}</strong></span>
+                      <span style="color:#ff5a1f">Timestral q50: <strong>${med}</strong></span>
+                      <span>Errore |e|: <strong>${err}</strong></span>
+                      <span>Banda 80% [q10..q90]: [${q10} .. ${q90}]</span>`;
+            },
+          }
+        );
+
+        const tbody = document.querySelector('#bmComparisonTable tbody');
+        let rowsHtml = '';
+        const showCount = Math.min(12, hLen);
+        for (let i = 0; i < showCount; i++) {
+          const act = data.holdout_actual[i];
+          const med = data.forecast_median[i];
+          const err = Math.abs(act - med).toFixed(3);
+          const q10 = data.quantiles.q10[i];
+          const q90 = data.quantiles.q90[i];
+          const q05 = data.quantiles.q05[i];
+          const q95 = data.quantiles.q95[i];
+          const inside90 = act >= q05 && act <= q95;
+          rowsHtml += `<tr>
+            <td>+${i + 1}</td>
+            <td style="color:#10b981;font-weight:600;">${act}</td>
+            <td style="color:#ff8559;font-weight:600;">${med}</td>
+            <td>${err}</td>
+            <td>[${q10} .. ${q90}]</td>
+            <td>[${q05} .. ${q95}]</td>
+            <td>${inside90 ? '<span style="color:#10b981">✓ SÌ</span>' : '<span style="color:#f43f5e">✗ FUORI</span>'}</td>
+          </tr>`;
+        }
+        tbody.innerHTML = rowsHtml;
+      } catch (err) {
+        showToast(err.message, "error");
+      } finally {
+        btn.textContent = 'Esegui Holdout Benchmark';
+        btn.disabled = false;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // VIEW 2: Forecast Studio
+    // -------------------------------------------------------------------------
+    async function loadStudioPreset() {
+      const id = document.getElementById('stPresetSelect').value;
+      const res = await fetch('/api/v1/backtest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: id, holdout_length: 24, model_size: selectedModelSize }),
+      });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+      const tail = data.context.slice(-96);
+      document.getElementById('stContextInput').value = tail.join(', ');
+      runStudioForecast();
+    }
+
+    async function runStudioForecast() {
+      const raw = document.getElementById('stContextInput').value.trim();
+      const ctx = raw
+        .replace(/[\[\]]/g, '')
+        .split(/[\s,;]+/)
+        .filter(Boolean)
+        .map(v => (v.toLowerCase() === 'null' || v.toLowerCase() === 'nan' ? null : Number(v)));
+      const horizon = parseInt(document.getElementById('stHorizonInput').value, 10);
+      const threshRaw = document.getElementById('stThresholdInput').value.trim();
+      const threshold = threshRaw !== '' ? Number(threshRaw) : null;
+
+      const res = await fetch('/api/v1/forecast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          context: ctx,
+          prediction_length: horizon,
+          model_size: selectedModelSize,
+          symmetric_averaging: document.getElementById('stSymAvg').checked,
+          clip_nonnegative: document.getElementById('stClipNonNeg').checked,
+          threshold: threshold,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.detail || 'Errore forecast');
+
+      updateTelemetryUI(data.telemetry);
+      const s = data.agent_summary;
+      document.getElementById('stLastVal').textContent = s.last_observed_value;
+      document.getElementById('stTrendBadge').textContent = `Trend: ${s.expected_trend.toUpperCase()} (${s.horizon_change_pct}%)`;
+      document.getElementById('stPeakMed').textContent = s.forecast_max_median;
+      document.getElementById('stMinMed').textContent = `Minimo q50: ${s.forecast_min_median}`;
+      document.getElementById('stQ99Peak').textContent = s.worst_case_q99_peak;
+      document.getElementById('stQ01Floor').textContent = `Floor q01: ${s.worst_case_q01_floor}`;
+      document.getElementById('stBandWidth').textContent = s.mean_80pct_band_width;
+
+      const ctxLen = ctx.length;
+      renderTimeSeriesSvg(
+        document.getElementById('stChartSvg'),
+        document.getElementById('stChartReadout'),
+        {
+          totalSteps: ctxLen + horizon,
+          splitIndex: ctxLen,
+          splitLabel: `ORIZZONTE FUTURO (+${horizon} STEP · Timestral-${data.model_size})`,
+          threshold: threshold,
+          bands: [
+            { startIndex: ctxLen, lower: data.quantiles.q05, upper: data.quantiles.q95, fill: 'rgba(255, 90, 31, 0.11)' },
+            { startIndex: ctxLen, lower: data.quantiles.q10, upper: data.quantiles.q90, fill: 'rgba(255, 90, 31, 0.24)' },
+          ],
+          seriesList: [
+            { values: ctx, startIndex: 0, color: '#94a3b8', width: 1.8 },
+            { values: data.quantiles.q99, startIndex: ctxLen, color: '#f43f5e', width: 1.1, dashed: '2 3' },
+            { values: data.quantiles.q01, startIndex: ctxLen, color: '#f43f5e', width: 1.1, dashed: '2 3' },
+            { values: data.median, startIndex: ctxLen, color: '#ff5a1f', width: 2.5 },
+          ],
+          onHoverStep: idx => {
+            if (idx < ctxLen) {
+              return `<span>Contesto t=${idx}</span><span>Valore: <strong>${ctx[idx]}</strong></span>`;
+            }
+            const hi = idx - ctxLen;
+            const ex = data.threshold_exceedance_pct ? ` | P(Y > ${threshold}): <strong>${data.threshold_exceedance_pct[hi]}%</strong>` : '';
+            return `<span><strong>Futuro +${hi + 1} (${data.model_size})</strong></span>
+                    <span style="color:#ff5a1f">q50: <strong>${data.median[hi]}</strong></span>
+                    <span>[q10..q90]: [${data.quantiles.q10[hi]} .. ${data.quantiles.q90[hi]}]</span>
+                    <span>[q01..q99]: [${data.quantiles.q01[hi]} .. ${data.quantiles.q99[hi]}]${ex}</span>`;
+          },
+        }
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // VIEW 3: Native Variants Lab
+    // -------------------------------------------------------------------------
+    function switchLabVariant(variant) {
+      currentLabVariant = variant;
+      document.querySelectorAll('.subtab-btn').forEach(b => {
+        b.setAttribute('aria-selected', b.id === 'subtab-' + variant ? 'true' : 'false');
+      });
+
+      const exampleMap = {
+        anomalies: 'anomaly_detection',
+        scenario: 'what_if_scenario',
+        risk: 'tail_risk_var',
+        missing: 'missing_data_stress',
+        multivariate: 'multivariate_joint',
+      };
+      document.getElementById('labJumpExampleBtn').setAttribute('onclick', `jumpToExample('${exampleMap[variant]}')`);
+
+      const ctrl = document.getElementById('labControlsPanel');
+      if (variant === 'anomalies') {
+        ctrl.innerHTML = `
+          <div class="panel-title"><span>A. Anomaly Detection Zero-Shot</span><span class="badge">21 Quantiles</span></div>
+          <div class="control-group">
+            <label for="labAnomDataset">Flusso Telemetrico</label>
+            <select id="labAnomDataset">
+              <option value="web_traffic_rps">Traffico API Gateway (Req/s)</option>
+              <option value="grid_load_mw">Carico Rete Elettrica (MW)</option>
+              <option value="weather_temp_c">Sensore Temperatura (°C)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="labAnomBand">Banda Quantile di Allerta</label>
+            <select id="labAnomBand">
+              <option value="q01_q99">Banda 98% [q01 – q99] (Solo anomalie severe)</option>
+              <option value="q05_q95">Banda 90% [q05 – q95] (Alta sensibilità)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label style="justify-content:flex-start;gap:0.5rem;">
+              <input type="checkbox" id="labAnomInject" checked />
+              <span>Inietta 3 anomalie realistiche (spike/drop) nella finestra</span>
+            </label>
+          </div>
+          <button class="btn-primary" onclick="runLabAnomalies()">Scansiona Anomalie</button>
+        `;
+        runLabAnomalies();
+      } else if (variant === 'scenario') {
+        ctrl.innerHTML = `
+          <div class="panel-title"><span>B. Simulazione What-If</span><span class="badge">ROLE_KNOWN_COV</span></div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:0.85rem;">
+            Simula l'effetto di una variabile futura nota (attivazione campagna promozionale <code>1</code> vs nessuna promozione <code>0</code>)
+            sull'orizzonte futuro di 36 ore.
+          </p>
+          <div class="control-group">
+            <label for="labScenHorizon">Orizzonte Simulazione (H)</label>
+            <input type="number" id="labScenHorizon" value="36" min="12" max="96" />
+          </div>
+          <button class="btn-primary" onclick="runLabScenario()">Confronta Baseline vs Scenario Promo</button>
+        `;
+        runLabScenario();
+      } else if (variant === 'risk') {
+        ctrl.innerHTML = `
+          <div class="panel-title"><span>C. Tail-Risk &amp; VaR Operativo</span><span class="badge">CDF 21 Quantili</span></div>
+          <div class="control-group">
+            <label for="labRiskDataset">Serie Sottostante</label>
+            <select id="labRiskDataset" onchange="runLabRisk()">
+              <option value="grid_load_mw">Carico Rete Elettrica (MW)</option>
+              <option value="web_traffic_rps">Traffico API Gateway (Req/s)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="labRiskThreshold">Soglia Critica Operativa (lascia vuoto per auto P88)</label>
+            <input type="number" id="labRiskThreshold" placeholder="Auto (88° percentile)" />
+          </div>
+          <button class="btn-primary" onclick="runLabRisk()">Calcola VaR &amp; Probabilità Sforamento</button>
+        `;
+        runLabRisk();
+      } else if (variant === 'missing') {
+        ctrl.innerHTML = `
+          <div class="panel-title"><span>D. Stress-Test Dati Mancanti</span><span class="badge">NaN Masking</span></div>
+          <div class="control-group">
+            <label for="labMissDataset">Serie Sensore</label>
+            <select id="labMissDataset">
+              <option value="weather_temp_c">Temperatura Stazione Meteo (°C)</option>
+              <option value="grid_load_mw">Carico Elettrico (MW)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="labMissRate">
+              <span>Percentuale Buchi Sensore (NaN nel Contesto)</span>
+              <span class="tabular" id="labMissRateVal">30%</span>
+            </label>
+            <input type="range" id="labMissRate" min="0.05" max="0.65" step="0.05" value="0.30"
+              oninput="document.getElementById('labMissRateVal').textContent = Math.round(this.value*100) + '%'" />
+          </div>
+          <button class="btn-primary" onclick="runLabMissing()">Esegui Stress-Test NaN</button>
+        `;
+        runLabMissing();
+      } else if (variant === 'multivariate') {
+        ctrl.innerHTML = `
+          <div class="panel-title"><span>E. Previsione Multivariata</span><span class="badge">(B=1, V=3, T)</span></div>
+          <p style="font-size:12px;color:var(--text-secondary);margin-bottom:0.85rem;">
+            Prevede congiuntamente 3 serie accoppiate: <strong>Carico Rete (MW)</strong>, <strong>Temperatura (°C)</strong> e <strong>Generazione Solare (kW)</strong>.
+          </p>
+          <div class="control-group">
+            <label for="labMvVarIndex">Variabile da Visualizzare nel Grafico</label>
+            <select id="labMvVarIndex" onchange="runLabMultivariate()">
+              <option value="0">Variabile 1: Carico Rete (MW)</option>
+              <option value="1">Variabile 2: Temperatura (°C)</option>
+              <option value="2">Variabile 3: Generazione Solare (kW)</option>
+            </select>
+          </div>
+          <button class="btn-primary" onclick="runLabMultivariate()">Esegui Inferenza Congiunta (V=3)</button>
+        `;
+        runLabMultivariate();
+      }
+    }
+
+    async function runLabAnomalies() {
+      const ds = document.getElementById('labAnomDataset').value;
+      const band = document.getElementById('labAnomBand').value;
+      const inject = document.getElementById('labAnomInject').checked;
+      const res = await fetch('/api/v1/anomalies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: ds, eval_window: 48, band: band, inject_synthetic_spikes: inject, model_size: selectedModelSize }),
+      });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+
+      document.getElementById('labKpiGrid').innerHTML = `
+        <div class="kpi-card"><div class="kpi-label">Anomalie Rilevate (${data.model_size})</div><div class="kpi-value" style="color:#f43f5e">${data.anomalies_count}</div><div class="kpi-sub">Su ${data.observed_window.length} step analizzati</div></div>
+        <div class="kpi-card"><div class="kpi-label">Banda Quantile Attiva</div><div class="kpi-value">${data.band_used.replace('_', ' .. ')}</div><div class="kpi-sub">Soglia dinamica adattiva</div></div>
+        <div class="kpi-card"><div class="kpi-label">Max Severity Score</div><div class="kpi-value">${data.anomalies.length ? Math.max(...data.anomalies.map(a => a.severity_score)) : 0}</div><div class="kpi-sub">> 1.0 indica fuori banda</div></div>
+      `;
+
+      document.getElementById('labChartLegend').innerHTML = `
+        <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Contesto</span>
+        <span class="legend-item"><span class="swatch" style="background:#10b981;"></span> Telemetria Osservata</span>
+        <span class="legend-item"><span class="swatch-band"></span> Invilluppo Normale Timestral [${data.band_used}]</span>
+        <span class="legend-item"><span class="swatch" style="background:#f43f5e;height:6px;width:6px;border-radius:50%;"></span> Anomalia Rilevata</span>
+      `;
+
+      const ctxLen = data.context.length;
+      const markers = data.anomalies.map(a => ({
+        index: ctxLen + a.step_in_window,
+        value: a.observed_value,
+        fill: '#f43f5e',
+        r: 5.5,
+      }));
+
+      renderTimeSeriesSvg(document.getElementById('labChartSvg'), document.getElementById('labChartReadout'), {
+        totalSteps: ctxLen + data.observed_window.length,
+        splitIndex: ctxLen,
+        splitLabel: `FINESTRA MONITORAGGIO ANOMALIE (Timestral-${data.model_size})`,
+        bands: [{ startIndex: ctxLen, lower: data.band_lower, upper: data.band_upper, fill: 'rgba(255,90,31,0.20)' }],
+        seriesList: [
+          { values: data.context, startIndex: 0, color: '#94a3b8', width: 1.7 },
+          { values: data.expected_median, startIndex: ctxLen, color: '#ff5a1f', width: 1.8, dashed: '4 3' },
+          { values: data.observed_window, startIndex: ctxLen, color: '#10b981', width: 2.2 },
+        ],
+        markers: markers,
+        onHoverStep: idx => {
+          if (idx < ctxLen) return `<span>Contesto t=${idx}: <strong>${data.context[idx]}</strong></span>`;
+          const wi = idx - ctxLen;
+          const anom = data.anomalies.find(a => a.step_in_window === wi);
+          return `<span>Step +${wi + 1}</span>
+                  <span>Osservato: <strong>${data.observed_window[wi]}</strong></span>
+                  <span>Banda Normale: [${data.band_lower[wi]} .. ${data.band_upper[wi]}]</span>
+                  ${anom ? `<span style="color:#f43f5e;font-weight:700;">⚠ ANOMALIA (severity ${anom.severity_score})</span>` : '<span style="color:#10b981">✓ Normale</span>'}`;
+        },
+      });
+      document.getElementById('labExplanationBox').innerHTML = `<strong>Meccanismo Timestral:</strong> ${data.explanation}`;
+    }
+
+    async function runLabScenario() {
+      const h = parseInt(document.getElementById('labScenHorizon')?.value || '36', 10);
+      const res = await fetch('/api/v1/scenario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prediction_length: h, model_size: selectedModelSize }),
+      });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+
+      document.getElementById('labKpiGrid').innerHTML = `
+        <div class="kpi-card"><div class="kpi-label">Uplift Cumulato Scenario Promo</div><div class="kpi-value" style="color:#10b981">+${data.cumulative_uplift_units} ${data.unit}</div><div class="kpi-sub">+${data.cumulative_uplift_pct}% vs Baseline (Modello ${data.model_size})</div></div>
+        <div class="kpi-card"><div class="kpi-label">Picco Scenario Promo (q50)</div><div class="kpi-value">${Math.max(...data.scenario_median)}</div><div class="kpi-sub">Picco Baseline: ${Math.max(...data.baseline_median)}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Ruolo Token</div><div class="kpi-value">ROLE_KNOWN_COV</div><div class="kpi-sub">Indicatore binario 0/1 su T + H</div></div>
+      `;
+
+      document.getElementById('labChartLegend').innerHTML = `
+        <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Storico Ordini</span>
+        <span class="legend-item"><span class="swatch" style="background:#38bdf8;"></span> Baseline (Promo=0)</span>
+        <span class="legend-item"><span class="swatch" style="background:#ff5a1f;height:4px;"></span> Scenario Attivo (Promo=1)</span>
+      `;
+
+      const ctxLen = data.context.length;
+      renderTimeSeriesSvg(document.getElementById('labChartSvg'), document.getElementById('labChartReadout'), {
+        totalSteps: ctxLen + data.prediction_length,
+        splitIndex: ctxLen,
+        splitLabel: `SIMULAZIONE CONTROFATTUALE WHAT-IF (Timestral-${data.model_size})`,
+        bands: [{ startIndex: ctxLen, lower: data.scenario_q10, upper: data.scenario_q90, fill: 'rgba(255,90,31,0.18)' }],
+        seriesList: [
+          { values: data.context, startIndex: 0, color: '#94a3b8', width: 1.8 },
+          { values: data.baseline_median, startIndex: ctxLen, color: '#38bdf8', width: 2.2, dashed: '4 3' },
+          { values: data.scenario_median, startIndex: ctxLen, color: '#ff5a1f', width: 2.6 },
+        ],
+        onHoverStep: idx => {
+          if (idx < ctxLen) return `<span>Storico t=${idx}: <strong>${data.context[idx]}</strong> (Promo passata: ${data.past_covariate_tail[idx]})</span>`;
+          const hi = idx - ctxLen;
+          return `<span>Futuro +${hi + 1} (Covariata Promo=${data.scenario_future_covariate[hi]})</span>
+                  <span style="color:#38bdf8">Baseline: <strong>${data.baseline_median[hi]}</strong></span>
+                  <span style="color:#ff5a1f">Scenario Promo: <strong>${data.scenario_median[hi]}</strong></span>
+                  <span style="color:#10b981">Delta: <strong>+${data.step_delta[hi]}</strong></span>`;
+        },
+      });
+      document.getElementById('labExplanationBox').innerHTML = `<strong>Meccanismo Timestral:</strong> ${data.explanation}`;
+    }
+
+    async function runLabRisk() {
+      const ds = document.getElementById('labRiskDataset')?.value || 'grid_load_mw';
+      const thRaw = document.getElementById('labRiskThreshold')?.value?.trim() || '';
+      const res = await fetch('/api/v1/risk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: ds, prediction_length: 36, threshold: thRaw ? Number(thRaw) : null, model_size: selectedModelSize }),
+      });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+      const r = data.risk_summary;
+
+      document.getElementById('labKpiGrid').innerHTML = `
+        <div class="kpi-card"><div class="kpi-label">Max Probabilità Sforamento Soglia</div><div class="kpi-value" style="color:#f43f5e">${r.max_exceedance_prob_pct}%</div><div class="kpi-sub">Soglia: ${data.threshold} ${data.unit} (${data.model_size})</div></div>
+        <div class="kpi-card"><div class="kpi-label">Operational VaR 95% (q95 Peak)</div><div class="kpi-value">${r.operational_var_95_peak}</div><div class="kpi-sub">VaR 99% (q99): ${r.operational_var_99_peak}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Ore ad Alto Rischio (P &ge; 50%)</div><div class="kpi-value">${r.high_risk_steps_over_50pct} step</div><div class="kpi-sub">Asimmetria code: ${r.tail_asymmetry_ratio}</div></div>
+      `;
+
+      document.getElementById('labChartLegend').innerHTML = `
+        <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Contesto</span>
+        <span class="legend-item"><span class="swatch" style="background:#ff5a1f;"></span> Mediana q50</span>
+        <span class="legend-item"><span class="swatch" style="background:#f43f5e;"></span> VaR 99% (q99) &amp; Soglia Critica</span>
+      `;
+
+      const ctxLen = data.context.length;
+      renderTimeSeriesSvg(document.getElementById('labChartSvg'), document.getElementById('labChartReadout'), {
+        totalSteps: ctxLen + data.prediction_length,
+        splitIndex: ctxLen,
+        splitLabel: `ANALISI TAIL-RISK & VaR (Timestral-${data.model_size})`,
+        threshold: data.threshold,
+        bands: [
+          { startIndex: ctxLen, lower: data.quantiles.q01, upper: data.quantiles.q99, fill: 'rgba(244,63,94,0.12)' },
+          { startIndex: ctxLen, lower: data.quantiles.q05, upper: data.quantiles.q95, fill: 'rgba(255,90,31,0.22)' },
+        ],
+        seriesList: [
+          { values: data.context, startIndex: 0, color: '#94a3b8', width: 1.8 },
+          { values: data.quantiles.q99, startIndex: ctxLen, color: '#f43f5e', width: 1.6, dashed: '3 3' },
+          { values: data.median, startIndex: ctxLen, color: '#ff5a1f', width: 2.4 },
+        ],
+        onHoverStep: idx => {
+          if (idx < ctxLen) return `<span>Contesto t=${idx}: <strong>${data.context[idx]}</strong></span>`;
+          const hi = idx - ctxLen;
+          return `<span>Futuro +${hi + 1}</span>
+                  <span>q50: <strong>${data.median[hi]}</strong></span>
+                  <span>VaR95 (q95): <strong>${data.quantiles.q95[hi]}</strong> | VaR99 (q99): <strong>${data.quantiles.q99[hi]}</strong></span>
+                  <span style="color:#f43f5e">P(Y > ${data.threshold}): <strong>${data.exceedance_probability_pct[hi]}%</strong></span>`;
+        },
+      });
+      document.getElementById('labExplanationBox').innerHTML = `<strong>Meccanismo Timestral:</strong> ${data.explanation}`;
+    }
+
+    async function runLabMissing() {
+      const ds = document.getElementById('labMissDataset')?.value || 'weather_temp_c';
+      const rate = parseFloat(document.getElementById('labMissRate')?.value || '0.30');
+      const res = await fetch('/api/v1/missing-stress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataset_id: ds, missing_rate: rate, holdout_length: 36, model_size: selectedModelSize }),
+      });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+
+      document.getElementById('labKpiGrid').innerHTML = `
+        <div class="kpi-card"><div class="kpi-label">Punti Sensore Rimossi (NaN)</div><div class="kpi-value" style="color:#f59e0b">${data.missing_points_count} / ${data.context_length}</div><div class="kpi-sub">Dropout: ${Math.round(data.missing_rate_requested * 100)}% (${data.model_size})</div></div>
+        <div class="kpi-card"><div class="kpi-label">MAE Serie Corrotta (con NaN)</div><div class="kpi-value">${data.metrics_with_nans.mae} ${data.unit}</div><div class="kpi-sub">MAE Serie Integra: ${data.metrics_clean.mae} ${data.unit}</div></div>
+        <div class="kpi-card"><div class="kpi-label">Coverage 90% con NaN</div><div class="kpi-value" style="color:#10b981">${data.metrics_with_nans.coverage_90_pct}%</div><div class="kpi-sub">Tenuta calibrazione con buchi</div></div>
+      `;
+
+      document.getElementById('labChartLegend').innerHTML = `
+        <span class="legend-item"><span class="swatch" style="background:#64748b;"></span> Contesto Integro</span>
+        <span class="legend-item"><span class="swatch" style="background:#f59e0b;"></span> Contesto Bucato (con NaN)</span>
+        <span class="legend-item"><span class="swatch" style="background:#10b981;"></span> Holdout Reale</span>
+        <span class="legend-item"><span class="swatch" style="background:#ff5a1f;"></span> Previsione da Contesto con NaN</span>
+        <span class="legend-item"><span class="swatch" style="background:#38bdf8;"></span> Previsione da Contesto Integro</span>
+      `;
+
+      const ctxLen = data.clean_context_tail.length;
+      renderTimeSeriesSvg(document.getElementById('labChartSvg'), document.getElementById('labChartReadout'), {
+        totalSteps: ctxLen + data.holdout_length,
+        splitIndex: ctxLen,
+        splitLabel: `PREVISIONE DOPO DROPOUT SENSORE NaN (Timestral-${data.model_size})`,
+        bands: [{ startIndex: ctxLen, lower: data.gapped_q10, upper: data.gapped_q90, fill: 'rgba(255,90,31,0.18)' }],
+        seriesList: [
+          { values: data.clean_context_tail, startIndex: 0, color: '#475569', width: 1.3, dashed: '2 2' },
+          { values: data.corrupted_context_tail, startIndex: 0, color: '#f59e0b', width: 2.2 },
+          { values: data.holdout_actual, startIndex: ctxLen, color: '#10b981', width: 2.2 },
+          { values: data.clean_forecast_median, startIndex: ctxLen, color: '#38bdf8', width: 1.8, dashed: '4 3' },
+          { values: data.gapped_forecast_median, startIndex: ctxLen, color: '#ff5a1f', width: 2.4 },
+        ],
+        onHoverStep: idx => {
+          if (idx < ctxLen) {
+            const v = data.corrupted_context_tail[idx];
+            return `<span>Contesto t=${idx}</span><span>Sensore: <strong>${v === null ? 'NaN (MANCANTE)' : v}</strong> (Reale: ${data.clean_context_tail[idx]})</span>`;
+          }
+          const hi = idx - ctxLen;
+          return `<span>Holdout +${hi + 1}</span>
+                  <span style="color:#10b981">Reale: <strong>${data.holdout_actual[hi]}</strong></span>
+                  <span style="color:#ff5a1f">Da serie con NaN: <strong>${data.gapped_forecast_median[hi]}</strong></span>
+                  <span style="color:#38bdf8">Da serie integra: <strong>${data.clean_forecast_median[hi]}</strong></span>`;
+        },
+      });
+      document.getElementById('labExplanationBox').innerHTML = `<strong>Meccanismo Timestral:</strong> ${data.explanation}`;
+    }
+
+    async function runLabMultivariate() {
+      const vIdx = parseInt(document.getElementById('labMvVarIndex')?.value || '0', 10);
+      const res = await fetch('/api/v1/multivariate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ holdout_length: 36, model_size: selectedModelSize }),
+      });
+      const data = await res.json();
+      updateTelemetryUI(data.telemetry);
+
+      const v = data.variates[vIdx];
+      document.getElementById('labKpiGrid').innerHTML = data.variates
+        .map(
+          item => `
+        <div class="kpi-card" style="${item.variate_index === vIdx ? 'border-color:var(--accent-mistral)' : ''}">
+          <div class="kpi-label">${item.name} (${data.model_size})</div>
+          <div class="kpi-value">MAE: ${item.metrics.mae}</div>
+          <div class="kpi-sub">sMAPE: ${item.metrics.smape_pct}% | Cov90: ${item.metrics.coverage_90_pct}%</div>
+        </div>`
+        )
+        .join('');
+
+      document.getElementById('labChartLegend').innerHTML = `
+        <span class="legend-item"><strong>${v.name}</strong> (prevista congiuntamente con le altre ${data.num_variates - 1} variabili)</span>
+        <span class="legend-item"><span class="swatch" style="background:#10b981;"></span> Holdout Reale</span>
+        <span class="legend-item"><span class="swatch" style="background:#ff5a1f;"></span> Mediana Congiunta Timestral</span>
+      `;
+
+      const ctxLen = v.context_tail.length;
+      renderTimeSeriesSvg(document.getElementById('labChartSvg'), document.getElementById('labChartReadout'), {
+        totalSteps: ctxLen + data.holdout_length,
+        splitIndex: ctxLen,
+        splitLabel: `INFERENZA MULTIVARIATA CONGIUNTA (${v.name} · ${data.model_size})`,
+        bands: [{ startIndex: ctxLen, lower: v.q10, upper: v.q90, fill: 'rgba(255,90,31,0.22)' }],
+        seriesList: [
+          { values: v.context_tail, startIndex: 0, color: '#94a3b8', width: 1.8 },
+          { values: v.holdout_actual, startIndex: ctxLen, color: '#10b981', width: 2.3 },
+          { values: v.forecast_median, startIndex: ctxLen, color: '#ff5a1f', width: 2.4, dashed: '5 3' },
+        ],
+        onHoverStep: idx => {
+          if (idx < ctxLen) return `<span>${v.name} t=${idx}: <strong>${v.context_tail[idx]}</strong></span>`;
+          const hi = idx - ctxLen;
+          return `<span>${v.name} +${hi + 1}</span>
+                  <span style="color:#10b981">Reale: <strong>${v.holdout_actual[hi]}</strong></span>
+                  <span style="color:#ff5a1f">Mediana q50: <strong>${v.forecast_median[hi]}</strong></span>`;
+        },
+      });
+      document.getElementById('labExplanationBox').innerHTML = `<strong>Meccanismo Timestral:</strong> ${data.explanation}`;
+    }
+
+    // -------------------------------------------------------------------------
+    // VIEW 4: Visual Examples Gallery
+    // -------------------------------------------------------------------------
+    function getMiniSvgDiagram(id) {
+      const diagrams = {
+        holdout_backtest: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <line x1="200" y1="10" x2="200" y2="90" stroke="#64748b" stroke-dasharray="3 3"/>
+            <text x="20" y="22" fill="#94a3b8" font-family="monospace" font-size="9">CONTESTO [0 : T-H]</text>
+            <text x="206" y="22" fill="#10b981" font-family="monospace" font-size="9">HOLDOUT REALE [H]</text>
+            <polygon points="200,55 230,35 260,60 295,30 295,62 260,82 230,58 200,70" fill="rgba(255,90,31,0.22)"/>
+            <polyline points="15,65 50,40 85,72 120,38 155,68 200,58" fill="none" stroke="#94a3b8" stroke-width="2"/>
+            <polyline points="200,58 230,45 260,70 295,44" fill="none" stroke="#10b981" stroke-width="2"/>
+            <polyline points="200,60 230,47 260,68 295,46" fill="none" stroke="#ff5a1f" stroke-width="2" stroke-dasharray="4 2"/>
+          </svg>`,
+        zero_shot_forecast: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <polygon points="160,55 210,28 260,18 305,12 305,88 260,78 210,72 160,55" fill="rgba(255,90,31,0.14)"/>
+            <polygon points="160,55 210,38 260,32 305,28 305,72 260,64 210,62 160,55" fill="rgba(255,90,31,0.28)"/>
+            <polyline points="15,70 60,52 110,64 160,55" fill="none" stroke="#94a3b8" stroke-width="2"/>
+            <polyline points="160,55 210,50 260,48 305,50" fill="none" stroke="#ff5a1f" stroke-width="2.4"/>
+            <text x="175" y="22" fill="#ff8559" font-family="monospace" font-size="9">21 QUANTILI (q01..q99)</text>
+          </svg>`,
+        anomaly_detection: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <polygon points="20,45 90,35 160,50 230,32 300,45 300,78 230,65 160,80 90,68 20,75" fill="rgba(255,90,31,0.18)"/>
+            <polyline points="20,60 90,52 135,62 160,14 190,60 230,48 265,92 300,60" fill="none" stroke="#10b981" stroke-width="2"/>
+            <circle cx="160" cy="14" r="5" fill="#f43f5e"/>
+            <circle cx="265" cy="92" r="5" fill="#f43f5e"/>
+            <text x="170" y="18" fill="#f43f5e" font-family="monospace" font-size="9">SPIKE > q99</text>
+          </svg>`,
+        what_if_scenario: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <line x1="150" y1="10" x2="150" y2="90" stroke="#64748b" stroke-dasharray="3 3"/>
+            <polyline points="15,72 60,65 105,70 150,66" fill="none" stroke="#94a3b8" stroke-width="2"/>
+            <polyline points="150,66 200,64 250,68 300,65" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3 3"/>
+            <polyline points="150,66 190,32 250,28 300,58" fill="none" stroke="#ff5a1f" stroke-width="2.5"/>
+            <text x="165" y="22" fill="#ff5a1f" font-family="monospace" font-size="9">SCENARIO PROMO=1</text>
+            <text x="165" y="82" fill="#38bdf8" font-family="monospace" font-size="9">BASELINE PROMO=0</text>
+          </svg>`,
+        tail_risk_var: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <line x1="15" y1="28" x2="305" y2="28" stroke="#f43f5e" stroke-dasharray="5 3" stroke-width="1.5"/>
+            <text x="20" y="21" fill="#f43f5e" font-family="monospace" font-size="9">SOGLIA CRITICA SLA / CAPACITÀ</text>
+            <polygon points="150,62 210,36 255,16 300,40 300,75 255,58 210,68 150,62" fill="rgba(244,63,94,0.22)"/>
+            <polyline points="15,68 80,58 150,62 210,52 255,36 300,56" fill="none" stroke="#ff5a1f" stroke-width="2"/>
+          </svg>`,
+        missing_data_stress: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <polyline points="15,65 55,40 85,55" fill="none" stroke="#f59e0b" stroke-width="2.2"/>
+            <rect x="85" y="20" width="55" height="60" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-dasharray="2 2"/>
+            <text x="92" y="53" fill="#f59e0b" font-family="monospace" font-size="9">NaN GAP</text>
+            <polyline points="140,48 185,68 210,52" fill="none" stroke="#f59e0b" stroke-width="2.2"/>
+            <polyline points="210,52 255,38 300,62" fill="none" stroke="#ff5a1f" stroke-width="2.4"/>
+          </svg>`,
+        multivariate_joint: `
+          <svg class="mini-svg" viewBox="0 0 320 100">
+            <polyline points="15,30 80,22 150,35 220,20 300,32" fill="none" stroke="#ff5a1f" stroke-width="2"/>
+            <polyline points="15,55 80,45 150,60 220,42 300,56" fill="none" stroke="#10b981" stroke-width="2"/>
+            <polyline points="15,82 80,72 150,85 220,68 300,80" fill="none" stroke="#38bdf8" stroke-width="2"/>
+            <text x="20" y="16" fill="#94a3b8" font-family="monospace" font-size="9">CROSS-VARIATE ATTENTION (V=3 SERIE)</text>
+          </svg>`,
+      };
+      return diagrams[id] || diagrams.zero_shot_forecast;
+    }
+
+    async function renderExamplesGallery() {
+      const grid = document.getElementById('examplesGalleryGrid');
+      if (grid.children.length > 0) return;
+      const res = await fetch('/api/v1/examples');
+      const data = await res.json();
+      grid.innerHTML = data.examples
+        .map(
+          ex => `
+        <article class="example-card" id="ex-card-${ex.id}">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+              <span class="badge badge-mistral">${ex.badge}</span>
+              <code class="tabular" style="font-size:11px;color:var(--text-secondary);">${ex.endpoint}</code>
+            </div>
+            <h3>${ex.title}</h3>
+            <p style="font-size:12px;color:var(--text-secondary);margin:0.25rem 0 0.65rem;">${ex.subtitle}</p>
+            ${getMiniSvgDiagram(ex.id)}
+            <p style="font-size:12.5px;color:var(--text-primary);margin-top:0.65rem;">
+              <strong>Come funziona:</strong> ${ex.how_it_works}
+            </p>
+            <p style="font-size:12px;color:var(--text-secondary);margin-top:0.35rem;">
+              <strong>Quando usarlo:</strong> ${ex.when_to_use}
+            </p>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <button class="btn-primary" onclick="launchFromExample('${ex.id}')">
+              Prova dal Vivo nel Workbench &#8594;
+            </button>
+          </div>
+        </article>`
+        )
+        .join('');
+    }
+
+    // -------------------------------------------------------------------------
+    // VIEW 5: AI Agent & Zero-Load /health Discovery
+    // -------------------------------------------------------------------------
+    async function loadAgentAndHealth() {
+      const [hRes, sRes] = await Promise.all([fetch('/health'), fetch('/api/v1/agent-schema')]);
+      const healthData = await hRes.json();
+      const schemaData = await sRes.json();
+
+      updateTelemetryUI({
+        model_state: healthData.model_telemetry,
+        hardware: healthData.device_telemetry,
+        disk_cached_models: healthData.disk_cached_models,
+      });
+
+      document.getElementById('healthJsonPre').textContent = JSON.stringify(healthData, null, 2);
+      document.getElementById('agentSchemaPre').textContent = JSON.stringify(schemaData, null, 2);
+
+      const docs = healthData.documentation_endpoints || {};
+      document.getElementById('healthDocsGrid').innerHTML = Object.entries(docs)
+        .map(
+          ([key, item]) => `
+        <a class="doc-card" href="${item.path}" target="_blank" rel="noopener">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
+            <strong class="tabular" style="color:#ff8559;">${item.path}</strong>
+            <span class="badge">${(item.audience || []).join(' · ')}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);">${item.description}</div>
+        </a>`
+        )
+        .join('');
+    }
+
+    function copyText(preId) {
+      const txt = document.getElementById(preId).textContent;
+      navigator.clipboard.writeText(txt);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      runBacktest();
+      renderExamplesGallery();
+    });
+  </script>
+</body>
+</html>
