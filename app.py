@@ -1958,6 +1958,7 @@ def api_crypto_backtest(req: CryptoBacktestRequest) -> dict[str, Any]:
             "q01": live_q["q01"],
             "q99": live_q["q99"],
         },
+        "disclaimer": "FOR EDUCATIONAL & SCIENTIFIC RESEARCH DEMONSTRATION PURPOSES ONLY. NO FINANCIAL ADVICE.",
         "telemetry": get_model_device_telemetry(),
     }
 
@@ -2054,6 +2055,7 @@ def api_simulate_investment(req: InvestmentSimulationRequest) -> dict[str, Any]:
             "risk_reward_ratio": risk_rew,
         },
         "scenarios": scenarios,
+        "disclaimer": "FOR EDUCATIONAL & SCIENTIFIC RESEARCH DEMONSTRATION PURPOSES ONLY. NO FINANCIAL ADVICE.",
     }
 
 
