@@ -38,25 +38,25 @@ MODEL_SPECS: dict[str, dict[str, Any]] = {
         "repo_id": "mistralai/Timestral-5M",
         "params_m": 5,
         "weights_mb": 20.8,
-        "role": "Default · Reattività Istantanea CPU/Edge",
+        "role": "Default · Instant CPU/Edge Responsiveness",
     },
     "28M": {
         "repo_id": "mistralai/Timestral-28M",
         "params_m": 28,
         "weights_mb": 111.0,
-        "role": "Bilanciato · Serie Stagionali Medie",
+        "role": "Balanced · Medium-Frequency Seasonal Series",
     },
     "123M": {
         "repo_id": "mistralai/Timestral-123M",
         "params_m": 123,
         "weights_mb": 490.0,
-        "role": "Alta Capacità · Serie Multivariata/Covariate",
+        "role": "High Capacity · Multivariate / Known Covariates",
     },
     "209M": {
         "repo_id": "mistralai/Timestral-209M",
         "params_m": 209,
         "weights_mb": 837.0,
-        "role": "Flagship #1 GIFT-Eval/TIME/fev-bench",
+        "role": "Flagship #1 on GIFT-Eval / TIME / fev-bench",
     },
 }
 
@@ -424,74 +424,72 @@ def _build_datasets() -> dict[str, dict[str, Any]]:
     return {
         "grid_load_mw": {
             "id": "grid_load_mw",
-            "name": "Carico Rete Elettrica Nazionale (MW, Orario)",
+            "name": "National Electric Grid Load (MW, Hourly)",
             "domain": "Energy & Utilities",
             "unit": "MW",
             "season_length": 24,
             "default_holdout": 48,
             "description": (
-                "Profilo reale di carico elettrico orario (240 ore / 10 giorni) con doppio picco "
-                "mattutino/serale e flessione nel weekend. Ideale per verificare l'accuratezza "
-                "zero-shot di Timestral su cicli multi-stagionali."
+                "Realistic hourly electric load profile (240 hours / 10 days) featuring dual morning/evening "
+                "peaks and weekend baseload dips. Ideal for testing Timestral zero-shot forecasting on multi-seasonal cycles."
             ),
             "series": _clean_float_list(grid_load),
             "known_covariates": None,
         },
         "weather_temp_c": {
             "id": "weather_temp_c",
-            "name": "Temperatura Atmosferica Stazione Meteo (°C, Oraria)",
+            "name": "Weather Station Surface Temperature (°C, Hourly)",
             "domain": "Climate & Sensors",
             "unit": "°C",
             "season_length": 24,
             "default_holdout": 48,
             "description": (
-                "Serie termometrica oraria con ciclo diurno asimmetrico e onda sinottica "
-                "multi-giornaliera. Testa la capacità del modello di separare trend lenti e oscillazioni."
+                "Hourly thermometric series with asymmetric diurnal cycles and multi-day synoptic weather "
+                "fronts. Tests the model's ability to decouple slow climate trends from rapid diurnal oscillations."
             ),
             "series": _clean_float_list(weather_temp),
             "known_covariates": None,
         },
         "web_traffic_rps": {
             "id": "web_traffic_rps",
-            "name": "Traffico Edge / API Gateway (Req/sec, Orario)",
+            "name": "Edge Gateway API Throughput (Req/sec, Hourly)",
             "domain": "IT Observability",
             "unit": "req/s",
             "season_length": 24,
             "default_holdout": 36,
             "description": (
-                "Richieste al secondo su infrastruttura cloud con crescita secolare, picchi "
-                "pomeridiani e rumore operativo. Utile per capacity planning e anomaly detection."
+                "Requests per second on cloud infrastructure with secular adoption growth, afternoon "
+                "traffic bursts, and operational jitter. Useful for capacity autoscaling and anomaly detection."
             ),
             "series": _clean_float_list(web_traffic),
             "known_covariates": None,
         },
         "retail_promo_units": {
             "id": "retail_promo_units",
-            "name": "Ordini E-Commerce con Covariata Promozioni (Unità/ora)",
+            "name": "E-Commerce Order Velocity with Planned Campaign Covariate (Units/hour)",
             "domain": "Retail & Supply Chain",
-            "unit": "ordini/h",
+            "unit": "orders/h",
             "season_length": 24,
             "default_holdout": 48,
             "description": (
-                "Serie di ordini orari accompagnata da una covariata futura nota (0/1 indicatore "
-                "di campagna promozionale pianificata). Dimostra l'attenzione condizionata "
-                "ROLE_KNOWN_COV di Timestral."
+                "Hourly order volume coupled with a known future covariate (0/1 flag for scheduled "
+                "promotional blitzes). Demonstrates Timestral's ROLE_KNOWN_COV conditional attention mechanism."
             ),
             "series": _clean_float_list(retail_sales),
             "known_covariates": _clean_float_list(promo_cov),
         },
         "multivariate_energy": {
             "id": "multivariate_energy",
-            "name": "Sistema Energetico Multivariato (Carico MW, Temperatura °C, Fotovoltaico kW)",
+            "name": "Coupled Multivariate Smart Grid (Load MW, Temperature °C, Solar Generation kW)",
             "domain": "Multivariate Smart Grid",
-            "unit": "Multi-unità",
+            "unit": "Multi-unit",
             "season_length": 24,
             "default_holdout": 36,
             "description": (
-                "Tre serie fortemente accoppiate previste congiuntamente in un unico passaggio "
-                "tramite attenzione cross-variata (shape B=1, V=3, T)."
+                "Three strongly coupled series forecasted jointly in a single forward pass "
+                "via cross-variate attention (tensor shape B=1, V=3, T)."
             ),
-            "variate_names": ["Carico Rete (MW)", "Temperatura (°C)", "Generazione Solare (kW)"],
+            "variate_names": ["Grid Load (MW)", "Ambient Temp (°C)", "Solar Generation (kW)"],
             "series": _clean_float_list(grid_load),
             "multivariate_series": [
                 _clean_float_list(grid_load),
@@ -982,10 +980,10 @@ def api_backtest(req: BacktestRequest) -> dict[str, Any]:
 
     return {
         "dataset_id": req.dataset_id if req.series is None else "custom",
-        "dataset_name": ds["name"] if req.series is None else "Serie Personalizzata Utente",
+        "dataset_name": ds["name"] if req.series is None else "User Custom Series",
         "domain": ds["domain"] if req.series is None else "Custom",
         "unit": ds["unit"] if req.series is None else "val",
-        "description": ds["description"] if req.series is None else "Holdout backtest su serie fornita dall'utente.",
+        "description": ds["description"] if req.series is None else "Holdout backtest evaluated on user-supplied time series.",
         "model_size": used_size,
         "model": MODEL_REPOS[used_size],
         "inference_ms": elapsed_ms,
@@ -1147,9 +1145,9 @@ def api_anomalies(req: AnomalyRequest) -> dict[str, Any]:
         "anomalies": anomalies,
         "injected_demo_indices": injected_indices,
         "explanation": (
-            "Timestral produce 21 quantili calibrati senza bisogno di soglie statiche manuali. "
-            f"Qualsiasi osservazione reale che cade fuori dalla banda [{low_key}, {high_key}] "
-            "viene segnalata con uno score proporzionale alla deviazione normalizzata."
+            "Timestral outputs 21 calibrated quantiles zero-shot without requiring manual static thresholds. "
+            f"Any real-world observation falling outside the [{low_key}, {high_key}] envelope "
+            "is flagged as an anomaly with a severity score proportional to the normalized deviation."
         ),
     }
 
@@ -1223,9 +1221,9 @@ def api_scenario(req: ScenarioRequest) -> dict[str, Any]:
         "cumulative_uplift_units": round(float(np.sum(delta)), 2),
         "cumulative_uplift_pct": total_uplift_pct,
         "explanation": (
-            "I token con ruolo ROLE_KNOWN_COV passano informazione ai token target anche sull'orizzonte futuro (T + H). "
-            "Gli indicatori binari 0/1 vengono riconosciuti automaticamente come variabili evento, permettendo "
-            "all'agente AI di simulare controfattuali prima di prendere una decisione operativa."
+            "Tokens with ROLE_KNOWN_COV supply conditioning features across the entire future horizon (T + H). "
+            "Binary 0/1 indicators are parsed as event features, enabling AI agents to simulate counterfactual "
+            "scenarios prior to committing operational actions."
         ),
     }
 
@@ -1286,9 +1284,9 @@ def api_risk(req: RiskRequest) -> dict[str, Any]:
             "tail_asymmetry_ratio": skew_ratio,
         },
         "explanation": (
-            "Invece di una singola stima puntuale, la head di Timestral restituisce 21 quantili ordinati (da q01 a q99). "
-            "Interpolando la distribuzione predittiva ad ogni step futuro otteniamo la probabilità esatta di superare "
-            "una soglia critica (es. capacità massima trasformatore o SLA server)."
+            "Rather than a single point estimate, Timestral outputs 21 non-crossing quantiles (q01 to q99). "
+            "Interpolating the predictive distribution at each future step reveals the exact probability of exceeding "
+            "critical operational limits (such as transformer capacity or SLA thresholds)."
         ),
     }
 
@@ -1350,9 +1348,9 @@ def api_missing_stress(req: MissingStressRequest) -> dict[str, Any]:
         "metrics_clean": m_clean,
         "metrics_with_nans": m_gapped,
         "explanation": (
-            "Timestral accetta nativamente valori NaN e maschere booleane (observation_mask). "
-            "Applica un forward-fill causale (ffill_with_mask) combinato con patch scaling pesato "
-            "sulle sole osservazioni valide, evitando il collasso della previsione anche con il 30%+ di buchi nei sensori."
+            "Timestral natively accepts NaN values and boolean observation masks. It applies causal forward-fill "
+            "(ffill_with_mask) combined with patch scaling weighted strictly over valid observations, preventing "
+            "forecast collapse even with 30%+ missing sensor readings."
         ),
     }
 
@@ -1403,9 +1401,9 @@ def api_multivariate(req: MultivariateRequest) -> dict[str, Any]:
         "holdout_length": h,
         "variates": variates_out,
         "explanation": (
-            "Quando il contesto ha forma (B, V, T), Timestral assegna lo stesso group_id a tutte le V variabili "
-            "della serie. I layer di attenzione condividono così il segnale tra variabili fisicamente accoppiate "
-            "(Carico Elettrico, Temperatura e Irradiazione Solare) in un'unica inferenza."
+            "When context has shape (B, V, T), Timestral assigns the same group_id to all V variables. "
+            "Cross-variate attention layers allow each variate to leverage precursor dynamics of coupled series "
+            "(e.g. Electrical Load, Temperature, and Solar Irradiance) in a single joint forward pass."
         ),
     }
 
@@ -1417,92 +1415,90 @@ def api_examples_catalog() -> dict[str, Any]:
         "examples": [
             {
                 "id": "holdout_backtest",
-                "badge": "CORE · VERIFICA EMPIRICA",
-                "title": "1. Holdout Benchmark su Serie Reali",
-                "subtitle": "Taglio degli ultimi H punti reali e confronto cieco tra Timestral e Ground Truth",
+                "badge": "CORE · EMPIRICAL BENCHMARK",
+                "title": "1. Empirical Holdout Benchmark on Real Series",
+                "subtitle": "Withhold last H real points and execute blind comparison between Timestral and Ground Truth",
                 "endpoint": "POST /api/v1/backtest",
-                "when_to_use": "Validare il modello sui propri dati storici prima di metterlo in produzione senza data leakage.",
+                "when_to_use": "Validate model precision on proprietary historical series prior to production deployment without data leakage.",
                 "how_it_works": (
-                    "La serie storica di lunghezza T viene divisa in Contesto [0 : T-H] e Holdout Nascosto [T-H : T]. "
-                    "Timestral riceve solo il Contesto e genera mediana (q50) + bande quantili. "
-                    "I punti reali lasciati fuori vengono poi sovrapposti per misurare MAE, RMSE, sMAPE e Coverage 80%/90%."
+                    "The historical series of length T is partitioned into Context [0 : T-H] and Hidden Holdout [T-H : T]. "
+                    "Timestral receives only the Context to produce median (q50) and quantile bands. "
+                    "Withheld empirical points are overlaid to calculate MAE, RMSE, sMAPE, and 80%/90% coverage."
                 ),
             },
             {
                 "id": "zero_shot_forecast",
                 "badge": "CORE · DHF + CLAMPSYM",
-                "title": "2. Previsione Probabilistica Zero-Shot (21 Quantili)",
-                "subtitle": "Decoupled Horizon Forecasting fino a 32K step di contesto senza riaddestramento",
+                "title": "2. Zero-Shot Probabilistic Forecast (21 Quantiles)",
+                "subtitle": "Decoupled Horizon Forecasting up to 32K context steps without retraining",
                 "endpoint": "POST /api/v1/forecast",
-                "when_to_use": "Prevedere domanda, telemetria, flussi di cassa o carico infrastrutturale a freddo.",
+                "when_to_use": "Forecast demand, sensor telemetry, cash flows, or infrastructure load zero-shot.",
                 "how_it_works": (
-                    "Il contesto viene suddiviso in patch causali, normalizzato localmente (sinh/arcsinh scaling) e letto "
-                    "da token di predizione disaccoppiati. La test-time augmentation Clampsym media la previsione con quella "
-                    "riflessa (-context) e applica il clamping a zero per le serie strettamente non negative."
+                    "The context is sliced into causal patches, locally scaled (sinh/arcsinh), and processed by "
+                    "decoupled horizon query tokens. Clampsym test-time augmentation averages the forecast with its "
+                    "reflected inverse (-context) and clamps non-negative series at zero."
                 ),
             },
             {
                 "id": "anomaly_detection",
-                "badge": "VARIANTE NATIVA 1 · TELEMETRIA",
-                "title": "3. Anomaly Detection Zero-Shot con Bande Quantili",
-                "subtitle": "Rilevamento automatico di spike e crolli fuori dal cono [q01, q99] o [q05, q95]",
+                "badge": "NATIVE VARIANT 1 · TELEMETRY",
+                "title": "3. Zero-Shot Anomaly Detection with Quantile Envelopes",
+                "subtitle": "Automated detection of spikes and crashes outside [q01, q99] or [q05, q95] cones",
                 "endpoint": "POST /api/v1/anomalies",
-                "when_to_use": "Monitoraggio server, IoT industriale, antifrode e alert su metriche stagionali complesse.",
+                "when_to_use": "Server monitoring, industrial IoT, fraud detection, and alerting on complex seasonal curves.",
                 "how_it_works": (
-                    "Una soglia fissa fallisce sulle serie stagionali (un valore normale a mezzogiorno è anomalo alle 3 di notte). "
-                    "Timestral adatta dinamicamente le bande q01–q99 ad ogni ora del giorno: ogni punto reale che perfora il cono "
-                    "probabilistico viene flaggato con uno score di severità."
+                    "Static thresholds fail on seasonal time-series (a normal value at noon is anomalous at 3 AM). "
+                    "Timestral dynamically adapts its q01–q99 bands to every hour: any observation breaching the cone "
+                    "is tagged with an exact severity score."
                 ),
             },
             {
                 "id": "what_if_scenario",
-                "badge": "VARIANTE NATIVA 2 · ROLE_KNOWN_COV",
-                "title": "4. Simulazione Scenari 'What-If' con Covariate Future",
-                "subtitle": "Condizionamento causale su eventi futuri noti (promozioni, festività, manutenzioni)",
+                "badge": "NATIVE VARIANT 2 · ROLE_KNOWN_COV",
+                "title": "4. 'What-If' Counterfactual Simulation with Future Covariates",
+                "subtitle": "Causal conditioning on known future events (promotions, holidays, scheduled maintenance)",
                 "endpoint": "POST /api/v1/scenario",
-                "when_to_use": "Rispondere a domande decisionali dell'agente AI: 'Quanto vendiamo in più se attiviamo una promo domani?'",
+                "when_to_use": "Answering strategic questions: 'How much will units lift if we trigger a promo campaign next week?'",
                 "how_it_works": (
-                    "Timestral distingue tre ruoli nei token: ROLE_TARGET, ROLE_PAST_COV e ROLE_KNOWN_COV. "
-                    "Le covariate future note sono visibili sull'intero orizzonte T + H: i token target leggono le covariate "
-                    "ma le covariate non leggono i target, permettendo simulazioni controfattuali pulite."
+                    "Timestral distinguishes token roles: ROLE_TARGET, ROLE_PAST_COV, and ROLE_KNOWN_COV. "
+                    "Known future covariates are visible across the entire T + H span: target tokens attend to covariates, "
+                    "preventing causal leakage while allowing clean counterfactual simulations."
                 ),
             },
             {
                 "id": "tail_risk_var",
-                "badge": "VARIANTE NATIVA 3 · RISK MANAGEMENT",
-                "title": "5. Analisi Tail-Risk, VaR Operativo & Superamento Soglia",
-                "subtitle": "Calcolo esatto di P(Y_t > Soglia) e quantili estremi q01 / q05 / q95 / q99",
+                "badge": "NATIVE VARIANT 3 · RISK MANAGEMENT",
+                "title": "5. Tail-Risk, Operational VaR & Threshold Exceedance",
+                "subtitle": "Exact calculation of P(Y_t > Threshold) and extreme quantiles q01 / q05 / q95 / q99",
                 "endpoint": "POST /api/v1/risk",
-                "when_to_use": "Dimensionamento scorte di sicurezza, SLA energetici, rischio liquidità e picchi di carico.",
+                "when_to_use": "Safety stock dimensioning, energy peak management, liquidity buffers, and infrastructure SLAs.",
                 "how_it_works": (
-                    "Poiché Timestral emette 21 quantili non-crossing per ogni step futuro, disponiamo dell'intera funzione di "
-                    "ripartizione cumulativa (CDF) empirica. Interpolando i nodi quantili calcoliamo la probabilità percentuale "
-                    "di sforare una soglia critica in ciascuna ora futura."
+                    "Because Timestral emits 21 non-crossing quantiles at each step, we have the complete empirical CDF. "
+                    "Interpolating between quantile knots yields the exact percentage probability of exceeding critical thresholds."
                 ),
             },
             {
                 "id": "missing_data_stress",
-                "badge": "VARIANTE NATIVA 4 · SENSOR DROPOUT",
-                "title": "6. Stress-Test Dati Mancanti (NaN & Observation Mask)",
-                "subtitle": "Resilienza della previsione su serie corrotte da blackout o perdita pacchetti",
+                "badge": "NATIVE VARIANT 4 · SENSOR DROPOUT",
+                "title": "6. Missing Data Stress-Test (NaN & Observation Mask)",
+                "subtitle": "Prediction resilience across corrupted series with transmission drops and blackouts",
                 "endpoint": "POST /api/v1/missing-stress",
-                "when_to_use": "Sensori IoT rumorosi, telemetria con buchi di trasmissione o serie storiche incomplete.",
+                "when_to_use": "Noisy IoT telemetry, dropped network packets, or intermittent sensor feeds.",
                 "how_it_works": (
-                    "I valori NaN vengono convertiti in una maschera booleana observation_mask. Timestral esegue ffill_with_mask "
-                    "e calcola media e scala di ogni patch usando esclusivamente i punti realmente osservati, mantenendo "
-                    "stabile la previsione anche con il 30%+ di buchi nei sensori."
+                    "NaN values are converted into a boolean observation_mask. Timestral applies ffill_with_mask and "
+                    "calculates patch statistics solely over observed values, maintaining stable forecasts even with 30%+ missing entries."
                 ),
             },
             {
                 "id": "multivariate_joint",
-                "badge": "VARIANTE NATIVA 5 · CROSS-VARIATE",
-                "title": "7. Previsione Multivariata Congiunta (B, V, T)",
-                "subtitle": "Previsione simultanea di variabili fisicamente o economicamente accoppiate",
+                "badge": "NATIVE VARIANT 5 · CROSS-VARIATE",
+                "title": "7. Joint Multivariate Forecasting (B, V, T)",
+                "subtitle": "Simultaneous forecasting of physically or economically coupled variables",
                 "endpoint": "POST /api/v1/multivariate",
-                "when_to_use": "Sistemi multi-sensore (es. Carico Rete + Temperatura + Solare) o portafogli multi-asset.",
+                "when_to_use": "Multi-sensor telemetry (e.g. Grid Load + Temperature + Solar Radiation) or multi-asset portfolios.",
                 "how_it_works": (
-                    "Passando un tensore (B, V, T), Timestral impacchetta le V serie con lo stesso group_id. "
-                    "L'attenzione cross-variata permette a ciascuna variabile di sfruttare i pattern precursori delle altre."
+                    "Passing a tensor of shape (B, V, T) binds all V variables under a shared group_id. "
+                    "Cross-variate attention enables each series to leverage precursor dynamics of related series in a single pass."
                 ),
             },
         ]
@@ -1915,15 +1911,15 @@ def api_crypto_backtest(req: CryptoBacktestRequest) -> dict[str, Any]:
     if live_exp_ret_pct >= thresh and live_downside_pct >= req.max_downside_q10_pct:
         signal_action = "BUY / LONG"
         signal_color = "#10b981"
-        confidence = "ALTA" if risk_reward >= 1.5 else "MEDIA"
+        confidence = "HIGH" if risk_reward >= 1.5 else "MEDIUM"
     elif live_exp_ret_pct <= -thresh:
         signal_action = "SELL / SHORT" if req.strategy_mode == "long_short" else "SELL / CASH"
         signal_color = "#f43f5e"
-        confidence = "ALTA"
+        confidence = "HIGH"
     else:
         signal_action = "HOLD / NEUTRAL"
         signal_color = "#f59e0b"
-        confidence = "ATTESA"
+        confidence = "WAITING"
 
     return {
         "symbol": req.symbol.upper(),
@@ -2027,13 +2023,13 @@ def api_simulate_investment(req: InvestmentSimulationRequest) -> dict[str, Any]:
     risk_rew = round(scenarios["bullish_target_q90"]["leveraged_return_pct"] / downside_val, 2)
 
     if exp_ret > 0.15 and win_prob >= 50.0:
-        rec = "FAVOREVOLE (LONG)"
+        rec = "FAVORABLE (LONG)"
         rec_color = "#10b981"
     elif exp_ret < -0.15 and win_prob <= 45.0:
-        rec = "SFAVOREVOLE (SHORT / CASH)"
+        rec = "UNFAVORABLE (SHORT / CASH)"
         rec_color = "#f43f5e"
     else:
-        rec = "NEUTRALE / ATTESA"
+        rec = "NEUTRAL / WAITING"
         rec_color = "#f59e0b"
 
     return {

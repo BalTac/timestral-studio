@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timestral Crypto Workbench — Segnali Buy/Sell Live & Backtest IS/OOS</title>
+  <title>Timestral Crypto Workbench — Real-Time Buy/Sell Signals & IS/OOS Backtesting</title>
   <style>
     :root {
       --bg-base: #0b0d10;
@@ -551,36 +551,37 @@
           <span class="badge badge-eth">ETH/USDT</span>
           <span class="badge badge-mistral">21 QUANTILE SIGNALS</span>
         </h1>
-        <p>Segnali Buy/Sell in Tempo Reale & Backtesting con Campioni In-Sample e Out-of-Sample</p>
+        <p>Real-Time Buy/Sell Signals &amp; Quantitative Backtesting with In-Sample / Out-of-Sample Validation</p>
       </div>
     </div>
 
     <div class="topbar-right tabular">
       <span class="badge" id="topbarPriceBadge">BTC: $--</span>
-      <span class="badge" id="topbarModelBadge">Modello: 5M</span>
-      <a href="/" class="btn-nav-back">&#8592; Torna al Dashboard Generale</a>
+      <span class="badge" id="topbarModelBadge">Model: 5M</span>
+      <a href="/" class="btn-nav-back">&#8592; Back to Main Dashboard</a>
     </div>
   </header>
 
   <main class="workspace">
     <div class="section-head">
       <div>
-        <h2>Demo Criptovalute: Analisi Predittiva e Backtest della Strategia</h2>
+        <h2>Cryptocurrency Demo: Predictive Analysis &amp; Strategy Backtesting</h2>
         <p>
-          Genera segnali operativi (BUY, SELL, HOLD) basati sui 21 quantili di Timestral e ne valida l'efficacia reale separando
-          i dati in <strong>In-Sample (Ottimizzazione)</strong> e <strong>Out-of-Sample (Verifica al buio)</strong>, calcolando Profit Factor,
-          Win Rate, Max Drawdown e Sharpe Ratio con detrazione delle commissioni (0.075%).
+          Generates risk-adjusted trading signals (BUY, SELL, HOLD) using Timestral's 21 non-crossing quantiles and empirically
+          validates execution efficiency by partitioning data into <strong>In-Sample (Optimization)</strong> and
+          <strong>Out-of-Sample (Blind Verification)</strong>, measuring Profit Factor, Win Rate, Max Drawdown, and Sharpe Ratio
+          with realistic taker fees (0.075%).
         </p>
       </div>
     </div>
 
-    <!-- DISCLAIMER FINANZIARIO / FINANCIAL DISCLAIMER -->
+    <!-- FINANCIAL DISCLAIMER / REGULATORY NOTE -->
     <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: var(--radius-sm); padding: 0.6rem 1rem; margin-bottom: 1rem; font-size: 12px; color: #fbbf24; display: flex; align-items: flex-start; gap: 0.65rem;" role="note">
       <span style="font-size: 16px; line-height: 1.2;">&#9888;</span>
       <div>
-        <strong>DISCLAIMER DIDATTICO &middot; NO FINANCIAL ADVICE:</strong>
-        Questa applicazione &egrave; sviluppata <em>esclusivamente a scopo didattico, di ricerca scientifica e dimostrativo</em> delle capacit&agrave; probabilistiche dei modelli di intelligenza artificiale su serie temporali.
-        <strong>Non costituisce consulenza finanziaria</strong>, n&eacute; sollecitazione all'investimento, n&eacute; invito al trading. Qualsiasi operazione finanziaria reale comporta il rischio di perdita totale del capitale. L'autore e i collaboratori declinano ogni responsabilit&agrave; per utilizzi impropri.
+        <strong>EDUCATIONAL RESEARCH DEMONSTRATION &middot; NOT FINANCIAL ADVICE:</strong>
+        This software is provided <em>strictly for educational, scientific research, and architectural demonstration purposes</em> showcasing foundation time-series AI models.
+        <strong>It does not constitute financial advice</strong>, trading recommendations, or an invitation to trade. Real cryptocurrency trading involves severe risk of total capital loss. The authors and contributors disclaim any liability for financial actions taken.
       </div>
     </div>
 
@@ -588,20 +589,20 @@
     <div class="live-signal-bar" id="liveSignalBar">
       <div>
         <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;">
-          Segnale Live in Tempo Reale sull'Ultima Candela
+          Real-Time Signal on Latest Candle
         </div>
         <div style="display:flex;align-items:center;gap:0.75rem;margin-top:0.35rem;flex-wrap:wrap;">
           <div class="signal-pill tabular" id="liveActionPill" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);">
-            CALCOLO SEGNALE...
+            COMPUTING SIGNAL...
           </div>
-          <span class="badge" id="liveConfidenceBadge">Confidenza: --</span>
-          <span class="tabular" style="font-size:13px;color:var(--text-secondary);" id="livePriceSpan">Prezzo Attuale: $--</span>
+          <span class="badge" id="liveConfidenceBadge">Confidence: --</span>
+          <span class="tabular" style="font-size:13px;color:var(--text-secondary);" id="livePriceSpan">Current Price: $--</span>
         </div>
       </div>
       <div class="tabular" style="display:flex;gap:1.5rem;font-size:12px;color:var(--text-secondary);flex-wrap:wrap;">
-        <div>Rendimento Atteso q50: <strong id="liveExpRet" style="color:var(--text-primary);">--%</strong></div>
+        <div>Expected Return q50: <strong id="liveExpRet" style="color:var(--text-primary);">--%</strong></div>
         <div>Downside Risk q10: <strong id="liveDownside" style="color:var(--text-primary);">--%</strong></div>
-        <div>Upside q90: <strong id="liveUpside" style="color:var(--text-primary);">--%</strong></div>
+        <div>Upside Potential q90: <strong id="liveUpside" style="color:var(--text-primary);">--%</strong></div>
         <div>Risk/Reward: <strong id="liveRr" style="color:var(--text-primary);">--</strong></div>
       </div>
     </div>
@@ -610,12 +611,12 @@
       <!-- CONTROLS PANEL -->
       <aside class="panel">
         <div class="panel-title">
-          <span>Parametri Strategia</span>
+          <span>Strategy Parameters</span>
           <span class="badge">Binance Real-Time</span>
         </div>
 
         <div class="control-group">
-          <label for="cpSymbolSelect">Criptovaluta (Demo Label)</label>
+          <label for="cpSymbolSelect">Cryptocurrency (Demo Label)</label>
           <select id="cpSymbolSelect" onchange="runCryptoBacktest()">
             <option value="BTCUSDT" selected>BTC/USDT (Bitcoin)</option>
             <option value="ETHUSDT">ETH/USDT (Ethereum)</option>
@@ -623,36 +624,36 @@
         </div>
 
         <div class="control-group">
-          <label for="cpIntervalSelect">Timeframe Candele</label>
+          <label for="cpIntervalSelect">Candle Timeframe</label>
           <select id="cpIntervalSelect" onchange="onIntervalChanged()">
-            <option value="15m">15 Minuti (15m · Intraday Scalping)</option>
-            <option value="1h" selected>1 Ora (1h · Swing Trading)</option>
-            <option value="4h">4 Ore (4h · Trend Following)</option>
-            <option value="1d">1 Giorno (1d · Posizionale)</option>
+            <option value="15m">15 Minutes (15m · Intraday Scalping)</option>
+            <option value="1h" selected>1 Hour (1h · Swing Trading)</option>
+            <option value="4h">4 Hours (4h · Trend Following)</option>
+            <option value="1d">1 Day (1d · Position Trading)</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label for="cpStrategySelect">Modalit&agrave; Strategia</label>
+          <label for="cpStrategySelect">Strategy Mode</label>
           <select id="cpStrategySelect" onchange="runCryptoBacktest()">
             <option value="long_short" selected>Long &amp; Short (Futures &middot; Trend Follow)</option>
-            <option value="long_only">Long Only (Spot &middot; Acquisto/Cash)</option>
+            <option value="long_only">Long Only (Spot &middot; Buy/Cash)</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label for="cpModelSelect">Taglia Modello Timestral</label>
+          <label for="cpModelSelect">Timestral Model Size</label>
           <select id="cpModelSelect" onchange="runCryptoBacktest()">
-            <option value="5M" selected>Timestral-5M (21 MB · Reattivit&agrave; Istantanea)</option>
+            <option value="5M" selected>Timestral-5M (21 MB · Instant CPU/Edge)</option>
             <option value="28M">Timestral-28M (111 MB)</option>
             <option value="123M">Timestral-123M (490 MB)</option>
-            <option value="209M">Timestral-209M (837 MB · Massima Capacit&agrave;)</option>
+            <option value="209M">Timestral-209M (837 MB · Maximum Capacity)</option>
           </select>
         </div>
 
         <div class="control-group">
           <label for="cpSplitRange">
-            <span>Split In-Sample / Out-of-Sample</span>
+            <span>In-Sample / Out-of-Sample Split</span>
             <span class="tabular" id="cpSplitVal">70% IS / 30% OOS</span>
           </label>
           <input type="range" id="cpSplitRange" min="50" max="80" step="5" value="70"
@@ -661,29 +662,29 @@
         </div>
 
         <div class="control-group">
-          <label for="cpThresholdInput">Soglia Segnale (Variazione q50 %)</label>
+          <label for="cpThresholdInput">Signal Threshold (q50 % change)</label>
           <input type="number" id="cpThresholdInput" value="0.12" step="0.01" min="0.02" max="3.0" />
         </div>
 
         <div class="control-group">
-          <label for="cpDownsideInput">Limite Rischio Downside q10 (%)</label>
+          <label for="cpDownsideInput">Downside Risk Limit q10 (%)</label>
           <input type="number" id="cpDownsideInput" value="-1.2" step="0.1" max="-0.1" min="-6.0" />
         </div>
 
         <div class="control-group">
-          <label for="cpFeeInput">Commissione Taker Fee (% per operazione)</label>
+          <label for="cpFeeInput">Taker Fee (% per execution)</label>
           <input type="number" id="cpFeeInput" value="0.075" step="0.005" min="0.0" max="0.5" />
         </div>
 
         <button class="btn-primary" id="btnRunCrypto" onclick="runCryptoBacktest()">
-          Esegui Backtest &amp; Aggiorna Segnale Live
+          Run Backtest &amp; Update Live Signal
         </button>
 
         <div class="mechanism-box" style="margin-top:1rem;font-size:12px;">
-          <strong>Regola Segnale Risk-Adjusted:</strong><br/>
-          &bull; <strong>BUY / LONG</strong>: se la mediana futura q50 sale &ge; <span id="lblThresh">0.12%</span> E il rischio di coda q10 non scende sotto <span id="lblDown">-1.2%</span>.<br/>
-          &bull; <strong>SELL / SHORT</strong>: se la mediana q50 scende sotto &minus;<span id="lblThreshNeg">0.12%</span> (o uscita in Cash in Long Only).<br/>
-          &bull; <strong>HOLD</strong>: se l'aspettativa &egrave; piatta o il rischio/rendimento &egrave; sfavorevole.
+          <strong>Risk-Adjusted Signal Logic:</strong><br/>
+          &bull; <strong>BUY / LONG</strong>: future median q50 rises &ge; <span id="lblThresh">0.12%</span> AND downside tail risk q10 stays above <span id="lblDown">-1.2%</span>.<br/>
+          &bull; <strong>SELL / SHORT</strong>: median q50 falls below &minus;<span id="lblThreshNeg">0.12%</span> (or Cash exit in Long Only mode).<br/>
+          &bull; <strong>HOLD</strong>: sideways forecast or unfavorable risk/reward asymmetry.
         </div>
       </aside>
 
@@ -692,50 +693,50 @@
         <!-- OVERALL KPIS -->
         <div class="kpi-grid">
           <div class="kpi-card" id="cardProfitFactor">
-            <div class="kpi-label">1. Profit Factor (OOS Cieco)</div>
+            <div class="kpi-label">1. Profit Factor (Blind OOS)</div>
             <div class="kpi-value" id="kpiProfitFactor">--</div>
-            <div class="kpi-sub" id="kpiPfSub">&gt; 1.5 soglia ottimale</div>
+            <div class="kpi-sub" id="kpiPfSub">&gt; 1.5 optimal threshold</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">2. Win Rate (% Profittevoli)</div>
+            <div class="kpi-label">2. Win Rate (% Profitable)</div>
             <div class="kpi-value" id="kpiWinRate">--%</div>
-            <div class="kpi-sub" id="kpiTradesCount">Trade chiusi: --</div>
+            <div class="kpi-sub" id="kpiTradesCount">Closed trades: --</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Max Drawdown (%)</div>
             <div class="kpi-value" id="kpiMaxDd" style="color:#f43f5e;">--%</div>
-            <div class="kpi-sub">Massima caduta picco-valle</div>
+            <div class="kpi-sub">Peak-to-trough decline</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Sharpe Ratio</div>
             <div class="kpi-value" id="kpiSharpe">--</div>
-            <div class="kpi-sub">Rendimento corretto per rischio</div>
+            <div class="kpi-sub">Risk-adjusted return</div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-label">Rendimento Netto OOS</div>
+            <div class="kpi-label">Net OOS Return</div>
             <div class="kpi-value" id="kpiNetPnl">--%</div>
-            <div class="kpi-sub" id="kpiFinalCap">Capitale Base: $10,000</div>
+            <div class="kpi-sub" id="kpiFinalCap">Base Capital: $10,000</div>
           </div>
         </div>
 
         <!-- 3. IN-SAMPLE vs OUT-OF-SAMPLE SIDE-BY-SIDE AUDIT CARD -->
         <div class="sample-cmp-card">
           <div class="panel-title">
-            <span>3. Confronto Campioni Storici: In-Sample (Ottimizzazione) vs Out-of-Sample (Verifica al Buio)</span>
-            <span class="badge badge-emerald" id="badgeOosCheck">Controllo Overfitting</span>
+            <span>3. Historical Sample Comparison: In-Sample (Optimization) vs Out-of-Sample (Blind Verification)</span>
+            <span class="badge badge-emerald" id="badgeOosCheck">Overfitting Guard</span>
           </div>
           <div style="overflow-x:auto;">
             <table class="data-table tabular" id="sampleCmpTable">
               <thead>
                 <tr>
-                  <th>Campione Storico</th>
-                  <th>Trade Eseguiti</th>
+                  <th>Historical Sample</th>
+                  <th>Trades Executed</th>
                   <th>Win Rate (%)</th>
                   <th>Profit Factor</th>
                   <th>Max Drawdown (%)</th>
                   <th>Sharpe Ratio</th>
-                  <th>Profitto Netto (%)</th>
-                  <th>Giudizio Efficienza</th>
+                  <th>Net PnL (%)</th>
+                  <th>Efficiency Verdict</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -746,70 +747,70 @@
         <!-- CANDLESTICK / PRICE CHART WITH IS/OOS CUTOFF & TRADE MARKERS -->
         <div class="chart-stage">
           <div class="chart-legend">
-            <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Prezzo Chiusura</span>
-            <span class="legend-item"><span class="swatch" style="background:#64748b;"></span> Split In-Sample / Out-of-Sample</span>
+            <span class="legend-item"><span class="swatch" style="background:#94a3b8;"></span> Close Price</span>
+            <span class="legend-item"><span class="swatch" style="background:#64748b;"></span> In-Sample / Out-of-Sample Split</span>
             <span class="legend-item"><span class="swatch" style="background:#10b981;height:5px;"></span> BUY Entry (Long)</span>
             <span class="legend-item"><span class="swatch" style="background:#a855f7;height:5px;"></span> SHORT Entry</span>
-            <span class="legend-item"><span class="swatch" style="background:#f43f5e;height:5px;"></span> Chiusura Posizione</span>
-            <span class="legend-item"><span class="swatch" style="background:#ff5a1f;height:4px;"></span> Cono Predittivo Timestral (q10..q90)</span>
+            <span class="legend-item"><span class="swatch" style="background:#f43f5e;height:5px;"></span> Position Exit</span>
+            <span class="legend-item"><span class="swatch" style="background:#ff5a1f;height:4px;"></span> Timestral Forecast Cone (q10..q90)</span>
           </div>
-          <svg id="cryptoChartSvg" class="chart-svg" role="img" aria-label="Grafico serie storica crypto con segnali Buy/Sell e cono predittivo Timestral"></svg>
+          <svg id="cryptoChartSvg" class="chart-svg" role="img" aria-label="Historical cryptocurrency price chart with Buy/Sell execution markers and Timestral predictive quantile cone"></svg>
           <div class="chart-readout" id="cryptoChartReadout">
-            Muovi il cursore per ispezionare candele, trade registrati e previsione probabilistica.
+            Hover cursor to inspect candles, executed trades, and probabilistic forecast.
           </div>
         </div>
 
         <!-- CONTINUOUS EQUITY CURVE STAGE -->
         <div class="chart-stage">
           <div class="panel-title" style="margin-bottom:0.4rem;">
-            <span>Curva Continua dell'Equity Mark-to-Market (con detrazione fee 0.075%)</span>
+            <span>Continuous Mark-to-Market Equity Curve (including 0.075% fee deduction)</span>
             <span class="badge badge-emerald" id="equityCurBadge">Base $10,000 USDT</span>
           </div>
-          <svg id="equityChartSvg" class="chart-svg" style="height:190px;" role="img" aria-label="Curva continua dell equity di portafoglio"></svg>
+          <svg id="equityChartSvg" class="chart-svg" style="height:190px;" role="img" aria-label="Continuous portfolio mark-to-market equity curve"></svg>
           <div class="chart-readout" id="equityChartReadout">
-            Mostra l'andamento reale candela per candela: linea tratteggiata = separazione In-Sample vs Out-of-Sample.
+            Shows bar-by-bar portfolio progression: dashed vertical line marks In-Sample vs Out-of-Sample split.
           </div>
         </div>
 
-        <!-- SIMULATORE INVESTIMENTO MANUALE & STIMA RESA -->
+        <!-- SIMULATORE INVESTIMENTO MANUALE & STIMA RESA / MANUAL INVESTMENT SIMULATOR -->
         <div class="panel" style="margin-bottom:1rem;" id="investmentSimulatorCard">
           <div class="panel-title">
-            <span>Simulatore Investimento Manuale &amp; Stima Resa (con Timestral 21 Quantili)</span>
-            <span class="badge badge-mistral">Calcolatore Rischio / Resa</span>
+            <span>Manual Investment Simulator &amp; Yield Estimator (Timestral 21 Quantiles)</span>
+            <span class="badge badge-mistral">Risk / Yield Calculator</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1rem;align-items:start;">
             <!-- Inputs -->
             <div style="background:var(--bg-base);padding:0.9rem;border-radius:var(--radius-sm);border:1px solid var(--border-default);">
               <div class="control-group">
                 <label for="simCapitalInput">
-                  <span>Importo da Investire (&euro; / USDT)</span>
+                  <span>Capital to Invest ($ / USDT)</span>
                   <span id="simCryptoEquiv" class="tabular" style="color:var(--accent-mistral);font-weight:600;">--</span>
                 </label>
                 <input type="number" id="simCapitalInput" value="1000" min="10" step="50" oninput="runInvestmentSimulation()" />
                 <div style="display:flex;gap:0.35rem;margin-top:0.4rem;flex-wrap:wrap;">
-                  <button type="button" class="btn-preset" onclick="setSimCapital(100)">100 &euro;</button>
-                  <button type="button" class="btn-preset" onclick="setSimCapital(500)">500 &euro;</button>
-                  <button type="button" class="btn-preset" onclick="setSimCapital(1000)">1.000 &euro;</button>
-                  <button type="button" class="btn-preset" onclick="setSimCapital(5000)">5.000 &euro;</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(100)">$100</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(500)">$500</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(1000)">$1,000</button>
+                  <button type="button" class="btn-preset" onclick="setSimCapital(5000)">$5,000</button>
                 </div>
               </div>
 
               <div class="control-group">
-                <label for="simLeverageSelect">Leva Finanziaria (Futures / Margin)</label>
+                <label for="simLeverageSelect">Financial Leverage (Futures / Margin)</label>
                 <select id="simLeverageSelect" onchange="runInvestmentSimulation()">
-                  <option value="1.0" selected>1x (Spot Reale &middot; Zero Rischio Liquidazione)</option>
-                  <option value="2.0">2x (Leva Bassa &middot; Rendimento &times;2)</option>
-                  <option value="3.0">3x (Leva Moderata &middot; Rendimento &times;3)</option>
-                  <option value="5.0">5x (Leva Alta &middot; Rischio Elevato)</option>
+                  <option value="1.0" selected>1x (Spot &middot; Zero Liquidation Risk)</option>
+                  <option value="2.0">2x (Low Leverage &middot; 2x Yield)</option>
+                  <option value="3.0">3x (Moderate Leverage &middot; 3x Yield)</option>
+                  <option value="5.0">5x (High Leverage &middot; Elevated Risk)</option>
                 </select>
               </div>
 
               <div class="control-group" style="margin-bottom:0;">
-                <label for="simHorizonSelect">Orizzonte di Uscita</label>
+                <label for="simHorizonSelect">Holding Horizon</label>
                 <select id="simHorizonSelect" onchange="runInvestmentSimulation()">
-                  <option value="6">6 candele</option>
-                  <option value="12" selected>12 candele (Orizzonte Standard)</option>
-                  <option value="24">24 candele</option>
+                  <option value="6">6 candles</option>
+                  <option value="12" selected>12 candles (Standard Horizon)</option>
+                  <option value="24">24 candles</option>
                 </select>
               </div>
             </div>
@@ -818,44 +819,44 @@
             <div>
               <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.6rem;flex-wrap:wrap;">
                 <div style="font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;">
-                  Valutazione Timestral:
+                  Timestral Assessment:
                 </div>
                 <div id="simVerdictBadge" class="signal-pill tabular" style="font-size:12px;padding:0.25rem 0.65rem;">
-                  CALCOLO...
+                  COMPUTING...
                 </div>
               </div>
 
               <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:0.5rem;">
                 <div class="kpi-card" style="padding:0.5rem 0.75rem;">
-                  <div class="kpi-label">Resa Base (q50)</div>
+                  <div class="kpi-label">Base Yield (q50)</div>
                   <div class="kpi-value tabular" id="simYieldBase" style="font-size:16px;">--</div>
                   <div class="kpi-sub" id="simReturnPctBase">--%</div>
                 </div>
                 <div class="kpi-card highlight-profit" style="padding:0.5rem 0.75rem;">
-                  <div class="kpi-label">Target Bull (q90)</div>
+                  <div class="kpi-label">Bull Target (q90)</div>
                   <div class="kpi-value tabular" id="simYieldBull" style="font-size:16px;color:#10b981;">--</div>
                   <div class="kpi-sub" id="simReturnPctBull">--%</div>
                 </div>
                 <div class="kpi-card highlight-loss" style="padding:0.5rem 0.75rem;">
-                  <div class="kpi-label">Rischio Bear (q10)</div>
+                  <div class="kpi-label">Bear Risk (q10)</div>
                   <div class="kpi-value tabular" id="simYieldBear" style="font-size:16px;color:#f43f5e;">--</div>
                   <div class="kpi-sub" id="simReturnPctBear">--%</div>
                 </div>
                 <div class="kpi-card" style="padding:0.5rem 0.75rem;">
-                  <div class="kpi-label">Prob. Vincita</div>
+                  <div class="kpi-label">Win Probability</div>
                   <div class="kpi-value tabular" id="simWinProb" style="font-size:16px;">--%</div>
-                  <div class="kpi-sub">sui 21 quantili</div>
+                  <div class="kpi-sub">across 21 quantiles</div>
                 </div>
               </div>
 
               <!-- Historical OOS Yield Comparison Box -->
               <div class="mechanism-box" style="margin-top:0.6rem;font-size:12px;" id="simOosBox">
-                <strong>Risultato Storico Out-of-Sample (Test al Buio):</strong><br/>
-                <span id="simOosText">Esegui il backtest per vedere il rendimento storico simulato sul tuo capitale.</span>
+                <strong>Historical Out-of-Sample Result (Blind Verification):</strong><br/>
+                <span id="simOosText">Run backtest to view simulated historical returns on your capital.</span>
               </div>
 
               <div id="simLiqAlert" style="display:none;margin-top:0.5rem;padding:0.4rem 0.6rem;background:rgba(244,63,94,0.15);border:1px solid #f43f5e;border-radius:var(--radius-sm);color:#fca5a5;font-size:11px;">
-                &bull; Attenzione: Con questa leva, il quantile estremo q01 tocca il prezzo di liquidazione stimato!
+                &bull; Warning: With this leverage level, extreme tail quantile q01 touches estimated liquidation price!
               </div>
             </div>
           </div>
@@ -864,22 +865,22 @@
         <!-- TRADES LOG TABLE -->
         <div class="panel" style="margin-bottom:1rem;">
           <div class="panel-title">
-            <span>Registro Trade Simulati (Ultimi eseguiti)</span>
-            <span class="badge" id="badgeTradesSample">Log Dettagliato</span>
+            <span>Simulated Trades Register (Recent Executions)</span>
+            <span class="badge" id="badgeTradesSample">Detailed Log</span>
           </div>
           <div style="overflow-x:auto;">
             <table class="data-table tabular" id="tradesTable">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Tipo</th>
-                  <th>Campione</th>
-                  <th>Prezzo Ingresso</th>
-                  <th>Prezzo Uscita</th>
-                  <th>Durata</th>
-                  <th>PnL Netto (USDT)</th>
-                  <th>Rendimento (%)</th>
-                  <th>Esito</th>
+                  <th>Type</th>
+                  <th>Sample</th>
+                  <th>Entry Price</th>
+                  <th>Exit Price</th>
+                  <th>Duration</th>
+                  <th>Net PnL (USDT)</th>
+                  <th>Return (%)</th>
+                  <th>Outcome</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -887,59 +888,59 @@
           </div>
         </div>
 
-        <!-- GUIDA COMPLETA: COME SI USA QUESTA COSA? -->
+        <!-- USER GUIDE CARD -->
         <div class="panel" id="userGuideCard">
           <div class="panel-title">
-            <span>Guida all'Uso &middot; Come si usa questo Workbench e come leggere i Dati</span>
-            <span class="badge badge-mistral">Manuale Operativo</span>
+            <span>User Guide &middot; How to Use this Workbench and Interpret Quantitative Metrics</span>
+            <span class="badge badge-mistral">Operations Manual</span>
           </div>
 
           <div class="guide-grid">
             <div class="guide-card">
-              <h4><span>&#128216;</span> 1. Come Funziona Timestral</h4>
+              <h4><span>&#128216;</span> 1. How Timestral Works</h4>
               <p>
-                Timestral &egrave; un foundation model addestrato su miliardi di punti temporali. Non genera una singola traiettoria rigida, ma calcola
-                <strong>21 quantili probabilistici non incrociati</strong> (da q01 a q99).
+                Timestral is a foundation model trained on billions of temporal data points. Rather than outputting a single brittle line, it infers
+                <strong>21 non-crossing probabilistic quantiles</strong> (from q01 to q99).
               </p>
               <ul>
-                <li><strong>Linea tratteggiata arancione (q50)</strong>: La mediana, ossia lo scenario centrale pi&ugrave; probabile.</li>
-                <li><strong>Area ombreggiata arancione (q10..q90)</strong>: L'intervallo di confidenza all'80%. Se si allarga, il mercato &egrave; volatile o incerto.</li>
+                <li><strong>Orange dashed line (q50)</strong>: The median trajectory, representing the most probable central scenario.</li>
+                <li><strong>Orange shaded cone (q10..q90)</strong>: The 80% confidence interval. A widening envelope signals elevated volatility or regime uncertainty.</li>
               </ul>
             </div>
 
             <div class="guide-card">
-              <h4><span>&#127919;</span> 2. Segnali Live (BUY / SELL / HOLD)</h4>
+              <h4><span>&#127919;</span> 2. Live Signals (BUY / SELL / HOLD)</h4>
               <p>
-                Il segnale live analizza l'aspettativa statistica a 12 candele:
+                The live signal assesses asymmetric risk/reward over the next 12 candles:
               </p>
               <ul>
-                <li><strong style="color:#10b981;">BUY / LONG</strong>: La mediana sale &ge; alla soglia minima (es. +0.12%) E il rischio di coda q10 &egrave; protetto.</li>
-                <li><strong style="color:#f43f5e;">SELL / SHORT</strong>: L'aspettativa inverte bruscamente al ribasso (o stop loss). In modalit&agrave; Spot si va liquidi in USDT.</li>
-                <li><strong style="color:#f59e0b;">HOLD / NEUTRAL</strong>: Movimento previsto laterale o rapporto rischio/rendimento non favorevole. Si resta fermi.</li>
+                <li><strong style="color:#10b981;">BUY / LONG</strong>: The future median rises &ge; signal threshold (e.g. +0.12%) AND downside tail risk q10 remains bounded above your risk limit.</li>
+                <li><strong style="color:#f43f5e;">SELL / SHORT</strong>: Negative expected return or downside breach. In Spot mode, exits to cash USDT.</li>
+                <li><strong style="color:#f59e0b;">HOLD / NEUTRAL</strong>: Sideways forecast or unfavorable risk/reward asymmetry. Wait for higher conviction.</li>
               </ul>
             </div>
 
             <div class="guide-card">
               <h4><span>&#128300;</span> 3. In-Sample vs Out-of-Sample</h4>
               <p>
-                &Egrave; il metodo scientifico per evitare di <strong>auto-ingannarsi</strong> (overfitting):
+                The cornerstone of quantitative validation to prevent <strong>self-delusion (overfitting)</strong>:
               </p>
               <ul>
-                <li><strong>In-Sample (IS - 70%)</strong>: Porzione di dati usata per calibrare e testare i parametri.</li>
-                <li><strong>Out-of-Sample (OOS - 30% Cieco)</strong>: Dati recenti che il modello non ha mai visto durante l'analisi. Se la strategia guadagna solo in IS ma perde in OOS, &egrave; una trappola statistica!</li>
+                <li><strong>In-Sample (IS - 70%)</strong>: Historical partition used to calibrate parameters and observe strategy behavior.</li>
+                <li><strong>Out-of-Sample (OOS - 30% Blind)</strong>: Recent candles withheld from analysis. If a strategy shows profit in IS but loses in OOS, it is a statistical trap!</li>
               </ul>
             </div>
 
             <div class="guide-card">
-              <h4><span>&#128202;</span> 4. Come Leggere le Metriche</h4>
+              <h4><span>&#128202;</span> 4. Key Performance Indicators</h4>
               <p>
-                Indicatori finanziari standard verificati:
+                Standard quantitative indicators measured on the historical series:
               </p>
               <ul>
-                <li><strong>Profit Factor</strong>: Rapporto tra profitto lordo e perdite lorde. <em>&gt; 1.5 &egrave; ottimale</em>; <em>&lt; 1.0 la strategia &egrave; in perdita</em>.</li>
-                <li><strong>Win Rate %</strong>: Percentuale di trade chiusi in profitto.</li>
-                <li><strong>Max Drawdown</strong>: Massima caduta dal punto pi&ugrave; alto al pi&ugrave; basso dell'equity (misura il rischio sopportato).</li>
-                <li><strong>Sharpe Ratio</strong>: Rendimento generato diviso per la volatilit&agrave; subita.</li>
+                <li><strong>Profit Factor</strong>: Gross profit divided by gross loss. <em>&gt; 1.5 is institutional benchmark</em>; <em>&lt; 1.0 is an unprofitable strategy</em>.</li>
+                <li><strong>Win Rate %</strong>: Percentage of closed positions with net positive PnL.</li>
+                <li><strong>Max Drawdown</strong>: Largest peak-to-trough decline of the equity curve (risk tolerance test).</li>
+                <li><strong>Sharpe Ratio</strong>: Excess returns divided by equity volatility.</li>
               </ul>
             </div>
           </div>
@@ -994,10 +995,10 @@
       document.getElementById("lblThresh").textContent = thresh + "%";
       document.getElementById("lblThreshNeg").textContent = thresh + "%";
       document.getElementById("lblDown").textContent = downside + "%";
-      document.getElementById("topbarModelBadge").textContent = "Modello: " + modelSize;
+      document.getElementById("topbarModelBadge").textContent = "Model: " + modelSize;
 
       const btn = document.getElementById("btnRunCrypto");
-      btn.textContent = `Inferenza Timestral-${modelSize} su ${sym}...`;
+      btn.textContent = `Timestral-${modelSize} inference on ${sym}...`;
       btn.disabled = true;
       btn.setAttribute("aria-busy", "true");
       document.getElementById("cryptoChartSvg")?.setAttribute("aria-busy", "true");
@@ -1022,7 +1023,7 @@
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.detail || "Errore nel backtest crypto");
+        if (!res.ok) throw new Error(data.detail || "Crypto backtest failed");
         g_lastBacktestData = data;
 
         // 1. Live Signal Strip
@@ -1034,8 +1035,8 @@
         pill.style.borderColor = sig.color;
 
         document.getElementById("topbarPriceBadge").textContent = `${sym}: $${data.latest_price.toLocaleString("en-US")}`;
-        document.getElementById("livePriceSpan").textContent = `Prezzo Attuale: $${data.latest_price.toLocaleString("en-US")}`;
-        document.getElementById("liveConfidenceBadge").textContent = `Confidenza: ${sig.confidence}`;
+        document.getElementById("livePriceSpan").textContent = `Current Price: $${data.latest_price.toLocaleString("en-US")}`;
+        document.getElementById("liveConfidenceBadge").textContent = `Confidence: ${sig.confidence}`;
         document.getElementById("liveExpRet").textContent = `${sig.expected_return_pct >= 0 ? "+" : ""}${sig.expected_return_pct}%`;
         document.getElementById("liveDownside").textContent = `${sig.downside_risk_q10_pct}%`;
         document.getElementById("liveUpside").textContent = `+${sig.upside_potential_q90_pct}%`;
@@ -1052,18 +1053,18 @@
         pfCard.className = "kpi-card " + (oos.profit_factor >= 1.5 ? "highlight-profit" : (oos.profit_factor < 1.0 && oos.total_trades > 0 ? "highlight-loss" : ""));
 
         document.getElementById("kpiWinRate").textContent = `${oos.win_rate_pct}%`;
-        document.getElementById("kpiTradesCount").textContent = `Trade OOS: ${oos.total_trades} (${oos.winning_trades}W / ${oos.losing_trades}L)`;
+        document.getElementById("kpiTradesCount").textContent = `OOS Trades: ${oos.total_trades} (${oos.winning_trades}W / ${oos.losing_trades}L)`;
         document.getElementById("kpiMaxDd").textContent = `${oos.max_drawdown_pct}%`;
         document.getElementById("kpiSharpe").textContent = oos.sharpe_ratio;
         document.getElementById("kpiNetPnl").textContent = `${oos.total_net_pnl_pct >= 0 ? "+" : ""}${oos.total_net_pnl_pct}%`;
-        document.getElementById("kpiFinalCap").textContent = `PnL OOS: $${round2(oos.gross_profit_usdt - oos.gross_loss_usdt)} USDT`;
+        document.getElementById("kpiFinalCap").textContent = `OOS PnL: $${round2(oos.gross_profit_usdt - oos.gross_loss_usdt)} USDT`;
 
         // 3. Side-by-Side Sample Comparison Table
         const judgePf = (pf, trds) => {
-          if (trds === 0) return `<span style="color:#8ca0b5;">NESSUN TRADE</span>`;
-          if (pf >= 1.5) return `<span style="color:#10b981;font-weight:700;">OTTIMO (&ge; 1.5)</span>`;
-          if (pf >= 1.0) return `<span style="color:#f59e0b;font-weight:600;">PAREGGIO (&ge; 1.0)</span>`;
-          return `<span style="color:#f43f5e;font-weight:700;">INEFFICIENTE (&lt; 1.0)</span>`;
+          if (trds === 0) return `<span style="color:#8ca0b5;">NO TRADES</span>`;
+          if (pf >= 1.5) return `<span style="color:#10b981;font-weight:700;">OPTIMAL (&ge; 1.5)</span>`;
+          if (pf >= 1.0) return `<span style="color:#f59e0b;font-weight:600;">BREAK-EVEN (&ge; 1.0)</span>`;
+          return `<span style="color:#f43f5e;font-weight:700;">INEFFICIENT (&lt; 1.0)</span>`;
         };
 
         const cmpTbody = document.querySelector("#sampleCmpTable tbody");
@@ -1081,7 +1082,7 @@
             <td>${judgePf(isKpi.profit_factor, isKpi.total_trades)}</td>
           </tr>
           <tr style="background:rgba(255,90,31,0.06);">
-            <td><strong style="color:#ff8559;">Out-of-Sample (OOS ${Math.round((1 - data.in_sample_ratio) * 100)}% Cieco)</strong></td>
+            <td><strong style="color:#ff8559;">Out-of-Sample (OOS ${Math.round((1 - data.in_sample_ratio) * 100)}% Blind)</strong></td>
             <td><strong>${oos.total_trades}</strong></td>
             <td><strong>${oos.win_rate_pct}%</strong></td>
             <td><strong style="color:#ff8559;font-size:14px;">${oos.profit_factor}</strong></td>
@@ -1104,7 +1105,7 @@
         const trdTbody = document.querySelector("#tradesTable tbody");
         const allTrades = data.trades || [];
         if (allTrades.length === 0) {
-          trdTbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:1.5rem;">Nessun trade completato con la soglia selezionata (${thresh}%). Abbassa la soglia per aumentare la frequenza.</td></tr>`;
+          trdTbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:1.5rem;">No trades completed at threshold (${thresh}%). Lower the threshold to increase frequency.</td></tr>`;
         } else {
           const lastTrades = allTrades.slice(-15).reverse();
           trdTbody.innerHTML = lastTrades
@@ -1116,7 +1117,7 @@
               <td><span class="badge ${t.sample === 'in_sample' ? '' : 'badge-mistral'}">${t.sample === 'in_sample' ? 'In-Sample' : 'Out-of-Sample'}</span></td>
               <td>$${t.entry_price.toLocaleString('en-US')}</td>
               <td>$${t.exit_price.toLocaleString('en-US')}</td>
-              <td>${t.holding_bars} barre</td>
+              <td>${t.holding_bars} bars</td>
               <td style="color:${t.net_pnl_usdt >= 0 ? '#10b981' : '#f43f5e'};font-weight:600;">
                 ${t.net_pnl_usdt >= 0 ? '+' : ''}$${t.net_pnl_usdt}
               </td>
@@ -1132,11 +1133,11 @@
         // 7. Update Investment Simulator
         await runInvestmentSimulation();
 
-        showToast(`Backtest completato su ${sym} (${interval}): ${allTrades.length} trade eseguiti.`, "success");
+        showToast(`Backtest completed on ${sym} (${interval}): ${allTrades.length} trades executed.`, "success");
       } catch (err) {
         showToast(err.message, "error");
       } finally {
-        btn.textContent = "Esegui Backtest & Aggiorna Segnale Live";
+        btn.textContent = "Run Backtest & Update Live Signal";
         btn.disabled = false;
         btn.removeAttribute("aria-busy");
         document.getElementById("cryptoChartSvg")?.removeAttribute("aria-busy");
@@ -1187,15 +1188,15 @@
         const bull = sim.scenarios.bullish_target_q90;
         const bear = sim.scenarios.bearish_risk_q10;
 
-        document.getElementById("simYieldBase").textContent = `${base.net_yield_amount >= 0 ? "+" : ""}${base.net_yield_amount} €`;
+        document.getElementById("simYieldBase").textContent = `${base.net_yield_amount >= 0 ? "+" : ""}$${base.net_yield_amount}`;
         document.getElementById("simYieldBase").style.color = base.net_yield_amount >= 0 ? "#10b981" : "#f43f5e";
-        document.getElementById("simReturnPctBase").textContent = `${base.leveraged_return_pct >= 0 ? "+" : ""}${base.leveraged_return_pct}% netto`;
+        document.getElementById("simReturnPctBase").textContent = `${base.leveraged_return_pct >= 0 ? "+" : ""}${base.leveraged_return_pct}% net`;
 
-        document.getElementById("simYieldBull").textContent = `+${bull.net_yield_amount} €`;
-        document.getElementById("simReturnPctBull").textContent = `+${bull.leveraged_return_pct}% netto`;
+        document.getElementById("simYieldBull").textContent = `+$${bull.net_yield_amount}`;
+        document.getElementById("simReturnPctBull").textContent = `+${bull.leveraged_return_pct}% net`;
 
-        document.getElementById("simYieldBear").textContent = `${bear.net_yield_amount} €`;
-        document.getElementById("simReturnPctBear").textContent = `${bear.leveraged_return_pct}% netto`;
+        document.getElementById("simYieldBear").textContent = `$${bear.net_yield_amount}`;
+        document.getElementById("simReturnPctBear").textContent = `${bear.leveraged_return_pct}% net`;
 
         document.getElementById("simWinProb").textContent = `${sim.win_probability_pct}%`;
 
@@ -1203,7 +1204,7 @@
         const liqEl = document.getElementById("simLiqAlert");
         if (sim.liquidation_warning && sim.liquidation_price) {
           liqEl.style.display = "block";
-          liqEl.innerHTML = `&bull; <strong>Allerta Rischio Liquidazione:</strong> Con leva ${leverage}x, la coda estrema q01 ($${sim.scenarios.extreme_worst_q01.target_price}) scende sotto il prezzo di liquidazione stimato a $${sim.liquidation_price}!`;
+          liqEl.innerHTML = `&bull; <strong>Liquidation Risk Alert:</strong> At leverage ${leverage}x, extreme tail q01 ($${sim.scenarios.extreme_worst_q01.target_price}) falls below estimated liquidation price at $${sim.liquidation_price}!`;
         } else {
           liqEl.style.display = "none";
         }
@@ -1214,7 +1215,7 @@
           const oosYield = round2(capital * (oosPnlPct / 100.0));
           const oosFinal = round2(capital + parseFloat(oosYield));
           const col = oosPnlPct >= 0 ? "#10b981" : "#f43f5e";
-          document.getElementById("simOosText").innerHTML = `Se avessi investito questi <strong>${capital.toLocaleString('it-IT')} &euro;</strong> durante il periodo Out-of-Sample (dati al buio), il capitale sarebbe ora di <strong style="color:${col};">${oosFinal} &euro;</strong> (Resa netta: <strong style="color:${col};">${oosPnlPct >= 0 ? '+' : ''}${oosYield} &euro; / ${oosPnlPct}%</strong>).`;
+          document.getElementById("simOosText").innerHTML = `If you had invested <strong>$${capital.toLocaleString('en-US')}</strong> during the Out-of-Sample period (blind test data), your balance would now be <strong style="color:${col};">$${oosFinal}</strong> (Net return: <strong style="color:${col};">${oosPnlPct >= 0 ? '+' : ''}$${oosYield} / ${oosPnlPct}%</strong>).`;
         }
       } catch (e) {
         console.error("Simulation error", e);
@@ -1248,7 +1249,7 @@
       const xPos = idx => pad.left + (idx / Math.max(totalSteps - 1, 1)) * plotW;
       const yPos = val => pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      let html = `<title>${data.symbol} (${data.interval}) — Chiusura $${data.latest_price}, Segnale ${liveSig.action}</title><desc>Grafico serie storica crypto con ${trades.length} trade eseguiti e cono predittivo Timestral a ${horizon} barre future.</desc>`;
+      let html = `<title>${data.symbol} (${data.interval}) — Close $${data.latest_price}, Signal ${liveSig.action}</title><desc>Cryptocurrency price chart with ${trades.length} executed trades and Timestral predictive cone over ${horizon} future bars.</desc>`;
 
       // Grid lines
       for (let i = 0; i <= 4; i++) {
@@ -1262,7 +1263,7 @@
       const sx = xPos(splitIdx);
       html += `<line x1="${sx.toFixed(1)}" y1="${pad.top}" x2="${sx.toFixed(1)}" y2="${height - pad.bottom}" stroke="#8ca0b5" stroke-dasharray="4 4" stroke-width="1.5"/>`;
       html += `<text x="${(sx - 8).toFixed(1)}" y="${pad.top + 14}" text-anchor="end" fill="#8ca0b5" font-family="monospace" font-size="10">IN-SAMPLE</text>`;
-      html += `<text x="${(sx + 8).toFixed(1)}" y="${pad.top + 14}" fill="#ff8559" font-family="monospace" font-size="10">OUT-OF-SAMPLE (CIECO)</text>`;
+      html += `<text x="${(sx + 8).toFixed(1)}" y="${pad.top + 14}" fill="#ff8559" font-family="monospace" font-size="10">OUT-OF-SAMPLE (BLIND)</text>`;
 
       // Historical Close Price Line
       let pathD = "";
@@ -1317,9 +1318,9 @@
       svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
       svg.innerHTML = html;
 
-      readout.innerHTML = `<span><strong>${data.symbol} (${data.interval})</strong>: Ultima chiusura $${data.latest_price.toLocaleString('en-US')}</span>
-        <span>Segnale: <strong style="color:${liveSig.color}">${liveSig.action}</strong></span>
-        <span>Orizzonte futuro: <strong>+${horizon} candele</strong></span>`;
+      readout.innerHTML = `<span><strong>${data.symbol} (${data.interval})</strong>: Latest close $${data.latest_price.toLocaleString('en-US')}</span>
+        <span>Signal: <strong style="color:${liveSig.color}">${liveSig.action}</strong></span>
+        <span>Future horizon: <strong>+${horizon} candles</strong></span>`;
     }
 
     function renderEquityChart(equity, splitIdx, startIdx) {
@@ -1341,7 +1342,7 @@
       const xPos = idx => pad.left + (idx / (equity.length - 1)) * plotW;
       const yPos = val => pad.top + (1 - (val - yMin) / (yMax - yMin)) * plotH;
 
-      let html = `<title>Curva Continua Equity Mark-to-Market</title><desc>Andamento del capitale di portafoglio su ${equity.length} candele continue.</desc>`;
+      let html = `<title>Continuous Mark-to-Market Equity Curve</title><desc>Portfolio capital progression across ${equity.length} continuous bars.</desc>`;
       // Baseline 10000 line
       const base10k = yPos(10000.0);
       html += `<line x1="${pad.left}" y1="${base10k.toFixed(1)}" x2="${width - pad.right}" y2="${base10k.toFixed(1)}" stroke="#64748b" stroke-dasharray="3 3"/>`;
@@ -1365,16 +1366,16 @@
       const eqColor = endEq >= 10000.0 ? "#10b981" : "#f43f5e";
       html += `<path d="${pathD}" fill="none" stroke="${eqColor}" stroke-width="2.5"/>`;
 
-      html += `<text x="${pad.left}" y="${height - 6}" fill="#8ca0b5" font-family="monospace" font-size="10">Inizio: $10,000</text>`;
-      html += `<text x="${width - pad.right}" y="${height - 6}" text-anchor="end" fill="${eqColor}" font-family="monospace" font-size="11" font-weight="700">Finale: $${endEq.toLocaleString('en-US')}</text>`;
+      html += `<text x="${pad.left}" y="${height - 6}" fill="#8ca0b5" font-family="monospace" font-size="10">Start: $10,000</text>`;
+      html += `<text x="${width - pad.right}" y="${height - 6}" text-anchor="end" fill="${eqColor}" font-family="monospace" font-size="11" font-weight="700">Final: $${endEq.toLocaleString('en-US')}</text>`;
 
       svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
       svg.innerHTML = html;
 
-      readout.innerHTML = `<span>Punti serie continua: <strong>${equity.length} candele</strong></span>
-        <span>Minimo toccato: <strong>$${minE.toLocaleString('en-US')}</strong></span>
-        <span>Massimo toccato: <strong>$${maxE.toLocaleString('en-US')}</strong></span>
-        <span>Risultato Finale: <strong style="color:${eqColor}">$${endEq.toLocaleString('en-US')}</strong></span>`;
+      readout.innerHTML = `<span>Series points: <strong>${equity.length} candles</strong></span>
+        <span>Lowest balance: <strong>$${minE.toLocaleString('en-US')}</strong></span>
+        <span>Peak balance: <strong>$${maxE.toLocaleString('en-US')}</strong></span>
+        <span>Final Balance: <strong style="color:${eqColor}">$${endEq.toLocaleString('en-US')}</strong></span>`;
     }
 
     window.addEventListener("DOMContentLoaded", () => {
