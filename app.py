@@ -11,6 +11,8 @@ import gc
 import json
 import math
 import os
+import platform
+import sys
 import threading
 import time
 import urllib.request
@@ -106,10 +108,27 @@ def _read_proc_rss_mb() -> float:
                 return round(kb / 1024.0, 1)
     except OSError:
         pass
-    return 0.0
+    try:
+        import resource
+        rusage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        if sys.platform == "darwin":
+            return round(rusage / (1024.0 * 1024.0), 1)
+        return round(rusage / 1024.0, 1)
+    except Exception:
+        return 0.0
 
 
 def _read_pi5_hardware() -> dict[str, Any]:
+    board_name = None
+    try:
+        raw_m = Path("/proc/device-tree/model").read_text(encoding="utf-8").strip("\x00 \n\r")
+        if raw_m:
+            board_name = raw_m
+    except OSError:
+        pass
+    if not board_name:
+        board_name = f"{platform.system()} {platform.machine()} ({os.cpu_count() or 1} Cores)"
+
     mem_total_mb = 0.0
     mem_avail_mb = 0.0
     try:
@@ -135,7 +154,7 @@ def _read_pi5_hardware() -> dict[str, Any]:
         pass
 
     return {
-        "board": "Raspberry Pi 5 (ARM64 Cortex-A76 · 4 Cores)",
+        "board": board_name,
         "cpu_cores": os.cpu_count() or 4,
         "cpu_temp_c": cpu_temp_c,
         "load_avg_1m": load_1m,
